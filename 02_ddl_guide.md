@@ -220,7 +220,7 @@ ALTER USER MANTORMALL PASSWORD EXPIRE;
 ```sql
 -- [실습 예제 9] 테이블 이름 변경하기
 -- 테이블 이름 변경
-RENAME customers_ex_copy TO customers_ex_rename;
+ALTER TABLE customers_ex_copy RENAME TO customers_ex_rename;
 
 -- 새 이름으로 테이블 조회
 SELECT * FROM customers_ex_rename;
