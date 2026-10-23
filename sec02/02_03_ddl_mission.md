@@ -1,12 +1,12 @@
-# [실습 미션] MENTORMALL 쇼핑몰 스키마 구축 및 DDL 마스터
+# [실습 미션] KOREA_MALL 쇼핑몰 스키마 구축 및 DDL 마스터
 
-본 실습 미션은 [02_ddl_guide.md](file:///c:/Users/up/Documents/GitHub/kor-dbms-class/02_ddl_guide.md)에서 학습한 DDL(CREATE, ALTER, RENAME, TRUNCATE, DROP) 및 제약조건을 온라인 쇼핑몰 **MENTORMALL** 데이터베이스 구축 시나리오를 통해 종합적으로 연습하는 과정입니다.
+본 실습 미션은 [02_ddl_guide.md](file:///c:/Users/up/Documents/GitHub/kor-dbms-class/02_ddl_guide.md)에서 학습한 DDL(CREATE, ALTER, RENAME, TRUNCATE, DROP) 및 제약조건을 온라인 쇼핑몰 **KOREA_MALL** 데이터베이스 구축 시나리오를 통해 종합적으로 연습하는 과정입니다.
 
 ---
 
 ## 📌 실습 개요 및 환경 설정
 
-- **실습 접속 계정**: `MANTORMALL` (관리자 `SYSTEM` 계정이 아닌 실습용 일반 사용자 세션에서 진행)
+- **실습 접속 계정**: `KOREA_MALL` (관리자 `SYSTEM` 계정이 아닌 실습용 일반 사용자 세션에서 진행)
 - **주요 목표**:
   1. 테이블 간 참조 관계(외래키)를 고려한 올바른 생성 순서 이해
   2. 제약조건(PK, FK, UNIQUE, CHECK, NOT NULL, DEFAULT)의 올바른 적용
@@ -395,4 +395,4 @@ WHERE table_name = 'ORDERS';
 ---
 
 ## 💡 수고하셨습니다!
-이제 MENTORMALL 쇼핑몰의 핵심 데이터베이스 뼈대가 완성되었습니다. 다음 3일차 수업에서는 이 테이블들에 데이터를 직접 입력(`INSERT`), 수정(`UPDATE`), 삭제(`DELETE`)하는 **DML(데이터 조작어)**을 학습합니다.
+이제 KOREA_MALL 쇼핑몰의 핵심 데이터베이스 뼈대가 완성되었습니다. 다음 3일차 수업에서는 이 테이블들에 데이터를 직접 입력(`INSERT`), 수정(`UPDATE`), 삭제(`DELETE`)하는 **DML(데이터 조작어)**을 학습합니다.

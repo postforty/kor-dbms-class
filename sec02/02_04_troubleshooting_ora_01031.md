@@ -1,12 +1,12 @@
 # [트러블슈팅] CREATE TABLE 실행 시 ORA-01031 (권한이 불충분합니다) 해결 가이드
 
-오라클(Oracle 23ai / 21c / 19c) 실습 환경에서 실습용 일반 사용자(`MANTORMALL`)를 생성하고 `CREATE TABLE`을 실행할 때 발생하는 **`ORA-01031: 권한이 불충분합니다`** 오류의 원인과 단계별 해결 방안을 정리한 문서입니다.
+오라클(Oracle 23ai / 21c / 19c) 실습 환경에서 실습용 일반 사용자(`KOREA_MALL`)를 생성하고 `CREATE TABLE`을 실행할 때 발생하는 **`ORA-01031: 권한이 불충분합니다`** 오류의 원인과 단계별 해결 방안을 정리한 문서입니다.
 
 ---
 
 ## 1. 문제 현상 (Symptom)
 
-일반 사용자(`MANTORMALL`) 세션에서 테이블 생성 쿼리를 실행했을 때 다음과 같은 에러가 발생합니다.
+일반 사용자(`KOREA_MALL`) 세션에서 테이블 생성 쿼리를 실행했을 때 다음과 같은 에러가 발생합니다.
 
 ```sql
 CREATE TABLE customer_ex_ddl (
@@ -41,7 +41,7 @@ CREATE TABLE customer_ex_ddl (
 - 사용자가 저장 공간(테이블스페이스)에 대한 사용 권한(Quota)이 없으면 `CREATE TABLE` 시점에 즉시 `ORA-01031`이 발생합니다.
 
 ### ③ DBeaver의 현재 활성 스키마(`CURRENT_SCHEMA`) 불일치
-- 실제 로그인 계정은 `MANTORMALL`이지만, DBeaver 상단 툴바의 '활성 스키마'가 `SYSTEM` 등 다른 계정으로 선택되어 있는 경우:
+- 실제 로그인 계정은 `KOREA_MALL`이지만, DBeaver 상단 툴바의 '활성 스키마'가 `SYSTEM` 등 다른 계정으로 선택되어 있는 경우:
 - 오라클은 이 쿼리를 `CREATE TABLE SYSTEM.customer_ex_ddl`로 인식하며, 다른 사용자의 스키마에 테이블을 생성하려면 `CREATE ANY TABLE` 관리자 권한이 필요하므로 `ORA-01031`이 발생합니다.
 
 ### ④ 쿼리 실행 방식 (스크립트 전체 실행 `Alt + X` vs 블록 실행 `Ctrl + Enter`)
@@ -56,13 +56,13 @@ CREATE TABLE customer_ex_ddl (
 ```sql
 -- 1) 현재 로그인 계정 및 접속 PDB 확인
 SELECT USER, SYS_CONTEXT('USERENV', 'CON_NAME') FROM DUAL;
--- 기대값: MANTORMALL, FREEPDB1
+-- 기대값: KOREA_MALL, FREEPDB1
 
 -- 2) 현재 세션의 활성 스키마 및 기본 테이블스페이스 확인
 SELECT SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA') AS CURRENT_SCHEMA,
        (SELECT DEFAULT_TABLESPACE FROM USER_USERS) AS DEFAULT_TS
 FROM DUAL;
--- 점검: CURRENT_SCHEMA가 MANTORMALL이어야 하며, DEFAULT_TS가 SYSTEM이 아니어야 함 (USERS 권장)
+-- 점검: CURRENT_SCHEMA가 KOREA_MALL이어야 하며, DEFAULT_TS가 SYSTEM이 아니어야 함 (USERS 권장)
 
 -- 3) 현재 세션이 테이블 생성 권한을 실제로 들고 있는지 확인
 SELECT * FROM SESSION_PRIVS WHERE PRIVILEGE = 'CREATE TABLE';
@@ -79,29 +79,29 @@ SELECT * FROM SESSION_PRIVS WHERE PRIVILEGE = 'CREATE TABLE';
 
 ```sql
 -- 1) 기본 저장 공간을 안전한 'USERS' 테이블스페이스로 지정 및 무제한 할당
-ALTER USER MANTORMALL DEFAULT TABLESPACE USERS;
-ALTER USER MANTORMALL QUOTA UNLIMITED ON USERS;
+ALTER USER KOREA_MALL DEFAULT TABLESPACE USERS;
+ALTER USER KOREA_MALL QUOTA UNLIMITED ON USERS;
 
 -- 2) 데이터베이스 접속 및 기본 객체 생성 롤 부여
-GRANT CONNECT, RESOURCE TO MANTORMALL;
+GRANT CONNECT, RESOURCE TO KOREA_MALL;
 
 -- 3) 전역 테이블스페이스 사용 권한 부여
-GRANT UNLIMITED TABLESPACE TO MANTORMALL;
+GRANT UNLIMITED TABLESPACE TO KOREA_MALL;
 
 -- 4) 롤(Role) 활성화 이슈와 무관하게 CREATE TABLE 시스템 권한 직접 부여
-GRANT CREATE TABLE TO MANTORMALL;
+GRANT CREATE TABLE TO KOREA_MALL;
 ```
 
 ---
 
 ### [해결 2] 테이블 생성 시 스키마 및 테이블스페이스 명시 (즉시 해결)
 
-`MANTORMALL` 편집기에서 스키마명(`MANTORMALL.`)과 저장될 테이블스페이스(`TABLESPACE USERS`)를 명시하여 실행합니다.
+`KOREA_MALL` 편집기에서 스키마명(`KOREA_MALL.`)과 저장될 테이블스페이스(`TABLESPACE USERS`)를 명시하여 실행합니다.
 
 > ⚠️ **주의**: 다른 쿼리와 섞이지 않도록 **반드시 해당 쿼리 블록만 마우스로 드래그(선택)한 후 `Ctrl + Enter`**를 누릅니다.
 
 ```sql
-CREATE TABLE MANTORMALL.customer_ex_ddl (
+CREATE TABLE KOREA_MALL.customer_ex_ddl (
     customer_id     NUMBER,        -- 고객번호
     name            VARCHAR2(100), -- 이름
     email           VARCHAR2(100), -- 이메일
@@ -115,10 +115,14 @@ CREATE TABLE MANTORMALL.customer_ex_ddl (
 
 ### [해결 3] DBeaver 환경 점검 및 세션 새로고침
 
-1. **활성 스키마 확인**:
-   - DBeaver 상단 툴바의 활성 데이터베이스/스키마 드롭다운이 **`<FREEPDB1> MANTORMALL`**로 선택되어 있는지 확인합니다.
+1. **활성 스키마(`CURRENT_SCHEMA`) 확인 및 전환**:
+   - **쿼리로 즉시 전환**: SQL 편집기 창에서 아래 쿼리를 실행(`Ctrl + Enter`)합니다.
+     ```sql
+     ALTER SESSION SET CURRENT_SCHEMA = KOREA_MALL;
+     ```
+   - **UI에서 전환**: DBeaver 상단 툴바의 활성 스키마 드롭다운에서 **`<FREEPDB1> KOREA_MALL`**을 선택하거나, 좌측 내비게이터의 `KOREA_MALL` 스키마 우클릭 → **`Set as default` (단축키: `Ctrl + Shift + A`)**를 클릭합니다.
 2. **연결 새로고침**:
-   - 좌측 [데이터베이스 내비게이터]에서 `MANTORMALL` 연결 우클릭 → **연결 해제(Disconnect)** 후 다시 **연결(Connect)**하여 새로 부여된 시스템 권한이 세션에 온전히 반영되도록 합니다.
+   - 좌측 [데이터베이스 내비게이터]에서 `KOREA_MALL` 연결 우클릭 → **연결 해제(Disconnect)** 후 다시 **연결(Connect)**하여 새로 부여된 시스템 권한이 세션에 온전히 반영되도록 합니다.
 3. **생성 확인**:
    - 테이블이 정상 생성되었는지 확인:
      ```sql
@@ -131,8 +135,8 @@ CREATE TABLE MANTORMALL.customer_ex_ddl (
 
 | 점검 항목 | 권장 설정값 | 미설정 시 발생하는 문제 |
 | :--- | :--- | :--- |
-| **접속 사용자 (`USER`)** | `MANTORMALL` | `SYSTEM` 세션 오염 또는 타 계정 충돌 |
-| **활성 스키마 (`CURRENT_SCHEMA`)** | `MANTORMALL` | 타 스키마 생성 시도 (`CREATE ANY TABLE` 필요 에러) |
+| **접속 사용자 (`USER`)** | `KOREA_MALL` | `SYSTEM` 세션 오염 또는 타 계정 충돌 |
+| **활성 스키마 (`CURRENT_SCHEMA`)** | `KOREA_MALL` | 타 스키마 생성 시도 (`CREATE ANY TABLE` 필요 에러) |
 | **기본 테이블스페이스 (`DEFAULT_TS`)** | `USERS` | `SYSTEM` 공간 생성 차단으로 인한 `ORA-01031` |
 | **테이블스페이스 사용 권한** | `UNLIMITED TABLESPACE` 또는 `QUOTA ON USERS` | 데이터 저장 불가 (`ORA-01031` 또는 `ORA-01950`) |
 | **시스템 권한** | `CREATE TABLE` 직접 부여 | 롤 미반영 시 `ORA-01031` |

@@ -1,6 +1,6 @@
 # Oracle 실습용 사용자(스키마) 생성 및 권한 설정 가이드
 
-Oracle 데이터베이스 실습을 진행하기 위해 최고 관리자(`SYSTEM`) 계정에서 실습용 일반 사용자(`MANTORMALL`)를 생성하고, 필요한 권한을 부여한 뒤 DBeaver에서 접속을 전환하는 절차입니다.
+Oracle 데이터베이스 실습을 진행하기 위해 최고 관리자(`SYSTEM`) 계정에서 실습용 일반 사용자(`KOREA_MALL`)를 생성하고, 필요한 권한을 부여한 뒤 DBeaver에서 접속을 전환하는 절차입니다.
 
 ---
 
@@ -12,15 +12,15 @@ Oracle 데이터베이스 실습을 진행하기 위해 최고 관리자(`SYSTEM
 -- 1) 현재 접속 사용자 확인 (결과가 SYSTEM 이어야 함)
 SELECT USER FROM DUAL;
 
--- 2) 사용자 생성 (계정명: MANTORMALL, 비밀번호: 1234)
+-- 2) 사용자 생성 (계정명: KOREA_MALL, 비밀번호: 1234)
 -- ※ Oracle에서 숫자로만 구성된 비밀번호는 큰따옴표("")로 감싸야 오류(ORA-00988)가 발생하지 않습니다.
-CREATE USER MANTORMALL IDENTIFIED BY "1234";
+CREATE USER KOREA_MALL IDENTIFIED BY "1234";
 
 -- 3) 데이터베이스 접속 및 기본 객체 생성 권한 부여
-GRANT CONNECT, RESOURCE TO MANTORMALL;
+GRANT CONNECT, RESOURCE TO KOREA_MALL;
 
 -- 4) 테이블 데이터 저장을 위한 테이블스페이스 사용 권한 부여
-GRANT UNLIMITED TABLESPACE TO MANTORMALL;
+GRANT UNLIMITED TABLESPACE TO KOREA_MALL;
 ```
 
 ---
@@ -44,7 +44,7 @@ SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 - **`REVOKE`**: 이미 부여된 권한이나 롤을 다시 **회수(박탈)**합니다.
   ```sql
   -- 예시: 부여했던 테이블스페이스 권한 회수
-  REVOKE UNLIMITED TABLESPACE FROM MANTORMALL;
+  REVOKE UNLIMITED TABLESPACE FROM KOREA_MALL;
   ```
 
 ---
@@ -61,12 +61,12 @@ SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 #### 핵심 이유
 1. **보안 및 스키마 격리 (최소 권한 원칙)**:
    - 만약 편리하다는 이유로 `DBA` 롤을 주면, 다른 사용자의 데이터를 조회/수정/삭제하거나 시스템 설정을 변경할 수 있는 치명적인 위험이 발생합니다.
-   - `CONNECT, RESOURCE`만 부여하면 자신의 스키마(`MANTORMALL`) 안에서만 자유롭게 테이블을 만들고 실습할 수 있어 시스템이 안전합니다.
+   - `CONNECT, RESOURCE`만 부여하면 자신의 스키마(`KOREA_MALL`) 안에서만 자유롭게 테이블을 만들고 실습할 수 있어 시스템이 안전합니다.
 2. **개발/학습 환경의 표준 템플릿**:
    - 오라클 교재, 자격증(SQLD 등), 실무 개발 환경에서 일반 사용자 계정 생성 시 가장 널리 쓰이는 표준 관례입니다.
 
 > 💡 **참고 (포함되지 않는 권한)**:
-> `CREATE VIEW`(뷰 생성)나 `CREATE SYNONYM`(동의어 생성) 등은 `RESOURCE`에 포함되어 있지 않습니다. 추후 뷰 실습 시에는 관리자(`SYSTEM`) 계정에서 `GRANT CREATE VIEW TO MANTORMALL;`을 추가로 실행해야 합니다.
+> `CREATE VIEW`(뷰 생성)나 `CREATE SYNONYM`(동의어 생성) 등은 `RESOURCE`에 포함되어 있지 않습니다. 추후 뷰 실습 시에는 관리자(`SYSTEM`) 계정에서 `GRANT CREATE VIEW TO KOREA_MALL;`을 추가로 실행해야 합니다.
 
 ---
 
@@ -90,7 +90,7 @@ INSERT INTO customer_ex_ddl (customer_id, name) VALUES (1, '홍길동');
 
 | 구분 | 1) `GRANT UNLIMITED TABLESPACE` (실습 권장) | 2) `ALTER USER ... QUOTA` (실무 권장) |
 | :--- | :--- | :--- |
-| **명령어** | `GRANT UNLIMITED TABLESPACE TO MANTORMALL;` | `ALTER USER MANTORMALL QUOTA UNLIMITED ON USERS;`<br>또는 `ALTER USER MANTORMALL QUOTA 500M ON USERS;` |
+| **명령어** | `GRANT UNLIMITED TABLESPACE TO KOREA_MALL;` | `ALTER USER KOREA_MALL QUOTA UNLIMITED ON USERS;`<br>또는 `ALTER USER KOREA_MALL QUOTA 500M ON USERS;` |
 | **설명** | DB 내 **모든 테이블스페이스**에 무제한 용량 권한 부여 | **지정한 특정 테이블스페이스**(예: USERS)에만 허용 용량 지정 |
 | **용도** | **교육/실습용** (테이블스페이스 구조를 몰라도 에러 없이 간편함) | **실무 운영용** (특정 계정이 디스크 공간을 독점 소진하는 사태 방지) |
 
@@ -103,13 +103,13 @@ INSERT INTO customer_ex_ddl (customer_id, name) VALUES (1, '홍길동');
 
 ```sql
 -- 1) 비밀번호 변경이 필요한 경우
-ALTER USER MANTORMALL IDENTIFIED BY "새비밀번호";
+ALTER USER KOREA_MALL IDENTIFIED BY "새비밀번호";
 
 -- 2) 계정 잠금 해제가 필요한 경우 (로그인 실패 횟수 초과 등으로 잠겼을 때)
-ALTER USER MANTORMALL ACCOUNT UNLOCK;
+ALTER USER KOREA_MALL ACCOUNT UNLOCK;
 
 -- 3) 사용자 및 해당 사용자의 모든 객체(테이블 등) 완전 삭제/초기화
-DROP USER MANTORMALL CASCADE;
+DROP USER KOREA_MALL CASCADE;
 ```
 
 ---
@@ -125,18 +125,43 @@ DROP USER MANTORMALL CASCADE;
    - **Host**: `localhost`
    - **Port**: `1521`
    - **Database (Service Name)**: `FREEPDB1`
-   - **Username**: `MANTORMALL`
+   - **Username**: `KOREA_MALL`
    - **Password**: `1234`
 4. **Test Connection(연결 테스트)** 클릭하여 정상 연결(`Connected`) 확인 후 **완료(Finish)**
 
 ### 4.2 실습 세션 확인 및 주의사항
-1. 생성된 `MANTORMALL` 연결을 선택하고 새 SQL 편집기(`Ctrl + ]`)를 엽니다.
+1. 생성된 `KOREA_MALL` 연결을 선택하고 새 SQL 편집기(`Ctrl + ]`)를 엽니다.
 2. 아래 쿼리를 실행하여 현재 접속 사용자가 정상적으로 전환되었는지 확인합니다.
 
 ```sql
--- 현재 접속 계정 확인 (결과: MANTORMALL)
+-- 현재 접속 계정 확인 (결과: KOREA_MALL)
 SELECT USER FROM DUAL;
 ```
 
 > ⚠️ **중요**:
-> 실습 중 테이블 생성(`CREATE TABLE`), 데이터 삽입(`INSERT`) 등 모든 DDL/DML 실습은 반드시 **`MANTORMALL` 세션의 SQL 편집기**에서 수행해야 최고 관리자(`SYSTEM`) 스키마를 오염시키지 않습니다.
+> 실습 중 테이블 생성(`CREATE TABLE`), 데이터 삽입(`INSERT`) 등 모든 DDL/DML 실습은 반드시 **`KOREA_MALL` 세션의 SQL 편집기**에서 수행해야 최고 관리자(`SYSTEM`) 스키마를 오염시키지 않습니다.
+
+---
+
+### 4.3 기본 활성 스키마(CURRENT_SCHEMA) 설정 및 고정 (접두사 없이 사용하기)
+
+Oracle에서는 세션의 활성 스키마가 `KOREA_MALL`로 고정되어 있어야 테이블명 앞에 `KOREA_MALL.` 접두사를 일일이 붙이지 않고 간결하게 `SELECT * FROM customers;` 형태로 실습할 수 있습니다. DBeaver에서 기본 스키마를 설정하는 방법은 크게 두 가지가 있습니다:
+
+#### 방법 1: SQL 쿼리로 세션 스키마 변경 (가장 빠르고 확실함)
+SQL 편집기에서 아래 명령어를 실행(`Ctrl + Enter`)하면 현재 편집기 세션의 기본 스키마가 `KOREA_MALL`로 즉시 변경됩니다.
+
+```sql
+-- 현재 세션의 활성 스키마를 KOREA_MALL로 변경
+ALTER SESSION SET CURRENT_SCHEMA = KOREA_MALL;
+
+-- 이후 접두사(KOREA_MALL.) 없이 간결하게 테이블 쿼리 가능
+SELECT * FROM customers;
+```
+
+#### 방법 2: DBeaver UI에서 기본 스키마 활성화하기
+1. **상단 툴바 드롭다운 선택**:
+   - SQL 편집기 바로 위(또는 DBeaver 상단 툴바)의 데이터베이스 연결(`FREEPDB1`) 옆 스키마 선택 드롭다운을 클릭하여 **`KOREA_MALL`**을 선택합니다.
+2. **데이터베이스 내비게이터에서 설정**:
+   - 좌측 트리 메뉴의 [데이터베이스 내비게이터]에서 `FREEPDB1` → `Schemas` → **`KOREA_MALL`** 스키마를 우클릭합니다.
+   - **`Set as default` (단축키: `Ctrl + Shift + A`)**를 클릭하여 활성화합니다.
+

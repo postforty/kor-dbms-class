@@ -6,16 +6,16 @@ DML(데이터 조작어)은 데이터베이스 테이블에 저장된 데이터�
 
 ## 0. 사전 준비: 실습 사용자 및 세션 확인
 
-모든 DML 실습은 최고 관리자(`SYSTEM`)가 아닌 **실습용 일반 사용자(`MANTORMALL`)** 세션의 SQL 편집기에서 진행합니다.
+모든 DML 실습은 최고 관리자(`SYSTEM`)가 아닌 **실습용 일반 사용자(`KOREA_MALL`)** 세션의 SQL 편집기에서 진행합니다.
 
 ```sql
--- 현재 접속 계정 확인 (결과가 MANTORMALL 이어야 함)
+-- 현재 접속 계정 확인 (결과가 KOREA_MALL 이어야 함)
 SELECT USER FROM DUAL;
 ```
 
 > 🎯 **핵심 배움 포인트 (실습 환경 격리와 최소 권한 원칙)**:
 > - 최고 관리자(`SYSTEM`)는 인프라 관리 및 사용자 권한 관리를 위한 특권 계정입니다.
-> - 데이터 조작(DML) 및 일반 실습은 반드시 일반 업무용 사용자(`MANTORMALL`) 세션에서 진행하여 시스템 카탈로그 오염 및 불필요한 장애를 방지합니다.
+> - 데이터 조작(DML) 및 일반 실습은 반드시 일반 업무용 사용자(`KOREA_MALL`) 세션에서 진행하여 시스템 카탈로그 오염 및 불필요한 장애를 방지합니다.
 
 ---
 
@@ -278,7 +278,7 @@ SELECT * FROM customers_ex_dml WHERE customer_id = 6;
 ### 7.1 서브쿼리를 이용한 데이터 복사 입력 쿼리
 
 ```sql
--- MENTORMALL의 customers 테이블에서 customer_id가 7번 이상인 고객 복사 입력
+-- KOREA_MALL의 customers 테이블에서 customer_id가 7번 이상인 고객 복사 입력
 INSERT INTO customers_ex_dml
 (customer_id, name, email, phone, registered_date, is_active)
 SELECT customer_id, name, email, phone, registered_date, is_active

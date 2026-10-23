@@ -8,7 +8,7 @@ DDL(데이터 정의어)은 데이터베이스의 객체(사용자, 테이블 �
 
 ### 0.1 실습용 사용자 생성 (SYSTEM 계정에서 실행)
 
-최고 관리자(`SYSTEM`) 계정에서 실습용 일반 사용자(`MANTORMALL`)를 생성하고 권한을 부여합니다.
+최고 관리자(`SYSTEM`) 계정에서 실습용 일반 사용자(`KOREA_MALL`)를 생성하고 권한을 부여합니다.
 
 ```sql
 -- 1) 현재 접속 사용자 확인 (결과가 SYSTEM 이어야 함)
@@ -16,38 +16,38 @@ SELECT USER FROM DUAL;
 
 -- 2) 사용자 생성 (비밀번호: 1234)
 -- ※ Oracle에서 숫자로만 구성된 비밀번호는 큰따옴표("")로 감싸야 오류(ORA-00988)가 발생하지 않습니다.
-CREATE USER MANTORMALL IDENTIFIED BY "1234";
+CREATE USER KOREA_MALL IDENTIFIED BY "1234";
 
 -- 3) 데이터베이스 접속 및 기본 객체 생성 권한 부여
-GRANT CONNECT, RESOURCE TO MANTORMALL;
+GRANT CONNECT, RESOURCE TO KOREA_MALL;
 
 -- 4) 테이블 데이터 저장을 위한 테이블스페이스 사용 권한 부여
-GRANT UNLIMITED TABLESPACE TO MANTORMALL;
+GRANT UNLIMITED TABLESPACE TO KOREA_MALL;
 
 -- [참고] 비밀번호 변경이 필요한 경우
--- ALTER USER MANTORMALL IDENTIFIED BY "새비밀번호";
+-- ALTER USER KOREA_MALL IDENTIFIED BY "새비밀번호";
 
 -- [참고] 계정 잠금 해제가 필요한 경우 (로그인 실패 횟수 초과 등)
--- ALTER USER MANTORMALL ACCOUNT UNLOCK;
+-- ALTER USER KOREA_MALL ACCOUNT UNLOCK;
 
 -- [참고] 사용자 초기화(삭제)가 필요한 경우
--- DROP USER MANTORMALL CASCADE;
+-- DROP USER KOREA_MALL CASCADE;
 ```
 
 ### 0.2 실습 사용자 전환 및 세션 확인
 
 1. **DBeaver 새 연결(Connection) 생성**:
    - **Database**: `FREEPDB1`
-   - **Username**: `MANTORMALL`
+   - **Username**: `KOREA_MALL`
    - **Password**: `1234`
-2. 생성한 `MANTORMALL` 연결에서 새 SQL 편집기(`Ctrl + ]`)를 열고 아래 쿼리를 실행해 **현재 사용자가 `MANTORMALL`로 전환되었는지 확인**합니다.
+2. 생성한 `KOREA_MALL` 연결에서 새 SQL 편집기(`Ctrl + ]`)를 열고 아래 쿼리를 실행해 **현재 사용자가 `KOREA_MALL`로 전환되었는지 확인**합니다.
 
 ```sql
--- 현재 접속 계정 확인 (결과: MANTORMALL)
+-- 현재 접속 계정 확인 (결과: KOREA_MALL)
 SELECT USER FROM DUAL;
 ```
 
-> ⚠️ **주의**: 1단계(테이블 생성)부터는 반드시 `MANTORMALL` 세션의 SQL 편집기에서 진행해야 관리자 스키마(`SYSTEM`)를 오염시키지 않습니다.
+> ⚠️ **주의**: 1단계(테이블 생성)부터는 반드시 `KOREA_MALL` 세션의 SQL 편집기에서 진행해야 관리자 스키마(`SYSTEM`)를 오염시키지 않습니다.
 
 ---
 
@@ -195,20 +195,20 @@ DROP (email, contact_number);
 
 ```sql
 -- 1) 사용자 비밀번호 변경 (예: 5678)
-ALTER USER MANTORMALL IDENTIFIED BY "5678";
+ALTER USER KOREA_MALL IDENTIFIED BY "5678";
 
 -- 2) 계정 잠금 (보안 이슈 발생 시 접속 차단)
-ALTER USER MANTORMALL ACCOUNT LOCK;
+ALTER USER KOREA_MALL ACCOUNT LOCK;
 
 -- 3) 계정 잠금 해제 (로그인 실패 횟수 초과 등으로 잠긴 경우)
-ALTER USER MANTORMALL ACCOUNT UNLOCK;
+ALTER USER KOREA_MALL ACCOUNT UNLOCK;
 
 -- 4) 다음 로그인 시 비밀번호 강제 변경 설정
-ALTER USER MANTORMALL PASSWORD EXPIRE;
+ALTER USER KOREA_MALL PASSWORD EXPIRE;
 ```
 
 > 💡 **참고 (권한)**: 
-> - 일반 사용자(`MANTORMALL`)는 **본인 계정의 비밀번호**를 직접 변경할 수 있습니다.
+> - 일반 사용자(`KOREA_MALL`)는 **본인 계정의 비밀번호**를 직접 변경할 수 있습니다.
 > - 다른 사용자의 비밀번호 변경, 계정 잠금/해제(`LOCK`/`UNLOCK`)는 관리자(`SYSTEM`) 계정에서 수행해야 합니다.
 
 ---
