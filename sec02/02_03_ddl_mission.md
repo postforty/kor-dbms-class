@@ -1,6 +1,6 @@
 # [실습 미션] KOREA_MALL 쇼핑몰 스키마 구축 및 DDL 마스터
 
-본 실습 미션은 [02_ddl_guide.md](file:///c:/Users/up/Documents/GitHub/kor-dbms-class/02_ddl_guide.md)에서 학습한 DDL(CREATE, ALTER, RENAME, TRUNCATE, DROP) 및 제약조건을 온라인 쇼핑몰 **KOREA_MALL** 데이터베이스 구축 시나리오를 통해 종합적으로 연습하는 과정입니다.
+본 실습 미션은 [02_02_ddl_guide.md](file:///c:/Users/dandycode/Documents/GitHub/kor-dbms-class/sec02/02_02_ddl_guide.md)에서 학습한 DDL(CREATE, ALTER, RENAME, TRUNCATE, DROP) 및 제약조건을 온라인 쇼핑몰 **KOREA_MALL** 데이터베이스 구축 시나리오를 통해 종합적으로 연습하는 과정입니다.
 
 ---
 
@@ -259,15 +259,28 @@ WHERE table_name = 'CUSTOMERS';
 </details>
 
 ### 3-2. 컬럼명 변경 (RENAME COLUMN)
-- **시나리오**: 상품명의 의미를 더욱 명확히 하기 위해 컬럼 명칭을 변경합니다.
-- **요구사항**: `products` 테이블의 `name` 컬럼을 `product_name`으로 변경하세요.
+- **시나리오**: 상품명의 의미를 더욱 명확히 하기 위해 컬럼 명칭을 임시로 변경해 봅니다.
+- **요구사항**: 
+  1. `products` 테이블의 `name` 컬럼을 `product_name`으로 변경하세요.
+  2. 변경 결과를 확인한 후, **후속 실습(더미 데이터 적재 및 SELECT 조회)의 6대 핵심 도메인 모델(`name`)과의 정합성을 위해 다시 `name`으로 원상 복구**하세요.
 
 <details>
-<summary>🔍 정답 확인 (3-2 컬럼명 변경)</summary>
+<summary>🔍 정답 확인 (3-2 컬럼명 변경 및 복원)</summary>
 
 ```sql
+-- 1) 상품명 컬럼 이름 변경 (name -> product_name)
 ALTER TABLE products
 RENAME COLUMN name TO product_name;
+
+-- 변경 확인 (product_name 컬럼 확인)
+DESC products;
+
+-- 2) 후속 실습(sec03 더미 데이터 적재 및 조회)을 위한 표준 컬럼명 원복 (product_name -> name)
+ALTER TABLE products
+RENAME COLUMN product_name TO name;
+
+-- 최종 복원 확인 (name 컬럼 확인)
+DESC products;
 ```
 </details>
 
@@ -395,4 +408,4 @@ WHERE table_name = 'ORDERS';
 ---
 
 ## 💡 수고하셨습니다!
-이제 KOREA_MALL 쇼핑몰의 핵심 데이터베이스 뼈대가 완성되었습니다. 다음 3일차 수업에서는 이 테이블들에 데이터를 직접 입력(`INSERT`), 수정(`UPDATE`), 삭제(`DELETE`)하는 **DML(데이터 조작어)**을 학습합니다.
+이제 KOREA_MALL 쇼핑몰의 핵심 데이터베이스 뼈대가 완성되었습니다. 다음 3일차 수업에서는 대량의 샘플 데이터를 적재하고, 원하는 조건으로 데이터를 정밀하게 추출·필터링하는 **데이터 조회(SELECT)**를 학습합니다.
