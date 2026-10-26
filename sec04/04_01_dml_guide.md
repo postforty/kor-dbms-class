@@ -232,7 +232,7 @@ SELECT * FROM customers_ex_dml WHERE customer_id = 5;
 
 > 🎯 **핵심 배움 포인트 (묵시적 형변환과 NLS 환경 종속의 위험)**:
 > - `'2025-01-05'`처럼 문자열을 날짜 컬럼에 직접 입력하면 DBMS가 내부적으로 `DATE` 타입으로 자동(묵시적) 변환합니다.
-> - 하지만 접속 환경이나 서버의 `NLS_DATE_FORMAT` 설정이 다를 경우(예: `DD-MON-RR`) 변환 오류가 발생하므로, 환경에 종속적인 묵시적 변환은 실무 코드에서 지양해야 합니다.
+> - **NLS(National Language Support) 환경 종속**: Oracle의 국가/언어 환경 설정 파라미터인 `NLS_DATE_FORMAT` 설정이 접속 환경이나 서버마다 다를 경우(예: 한국 `RR/MM/DD`, 미국 `DD-MON-RR`) 형식 불일치 오류(`ORA-01861`)가 발생하므로, 환경에 종속적인 묵시적 변환은 실무 코드에서 지양해야 합니다.
 
 ---
 
