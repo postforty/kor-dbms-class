@@ -1,6 +1,6 @@
 # Oracle SQL 데이터 조회(SELECT) 기초 연습문제
 
-본 문서는 [03_01_select_guide.md](file:///c:/Users/dandycode/Documents/GitHub/kor-dbms-class/sec03/03_01_select_guide.md)에서 학습한 SQL 데이터 조회(`SELECT`), 특정 컬럼 프로젝션, 별칭(ALIAS), `WHERE` 조건절, 산술 및 비교/논리 연산자, `NULL` 처리(`IS NULL`, `IS NOT NULL`, `NVL`), 범위(`BETWEEN`) 및 다중 목록(`IN`) 필터링의 핵심 원리를 점검하기 위한 연습문제입니다.
+본 문서는 [03_01_select_guide.md](./03_01_select_guide.md)에서 학습한 SQL 데이터 조회(`SELECT`), 특정 컬럼 프로젝션, 별칭(ALIAS), `WHERE` 조건절, 산술 및 비교/논리 연산자, `NULL` 처리(`IS NULL`, `IS NOT NULL`, `NVL`), 범위(`BETWEEN`) 및 다중 목록(`IN`) 필터링의 핵심 원리를 점검하기 위한 연습문제입니다.
 
 각 문제를 먼저 풀어본 후, 하단의 **정답 및 해설**을 펼쳐 올바른 해설과 오답 분석을 확인해 보세요.
 

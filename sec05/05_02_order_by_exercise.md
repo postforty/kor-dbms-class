@@ -1,6 +1,6 @@
 # Oracle SQL 데이터 정렬(ORDER BY), 중복 제거(DISTINCT), 행 수 제한(ROW LIMITING) 연습문제
 
-본 문서는 [05_01_order_by_guide.md](file:///c:/Users/dandycode/Documents/GitHub/kor-dbms-class/sec05/05_01_order_by_guide.md)에서 학습한 정렬 방향(`ASC`, `DESC`), 다중 컬럼 정렬, `NULL` 정렬 제어(`NULLS FIRST`, `NULLS LAST`), `DISTINCT`를 통한 고유 데이터 추출, 그리고 SQL 표준 행 수 제한(`FETCH FIRST`, `OFFSET`)과 전통적인 `ROWNUM` 가상 컬럼의 동작 원리를 점검하기 위한 연습문제입니다.
+본 문서는 [05_01_order_by_guide.md](./05_01_order_by_guide.md)에서 학습한 정렬 방향(`ASC`, `DESC`), 다중 컬럼 정렬, `NULL` 정렬 제어(`NULLS FIRST`, `NULLS LAST`), `DISTINCT`를 통한 고유 데이터 추출, 그리고 SQL 표준 행 수 제한(`FETCH FIRST`, `OFFSET`)과 전통적인 `ROWNUM` 가상 컬럼의 동작 원리를 점검하기 위한 연습문제입니다.
 
 각 문제를 먼저 풀어본 후, 하단의 **정답 및 해설**을 펼쳐 올바른 해설과 오답 분석을 확인해 보세요.
 

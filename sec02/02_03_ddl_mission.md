@@ -1,6 +1,6 @@
 # [실습 미션] KOREA_MALL 쇼핑몰 스키마 구축 및 DDL 마스터
 
-본 실습 미션은 [02_02_ddl_guide.md](file:///c:/Users/dandycode/Documents/GitHub/kor-dbms-class/sec02/02_02_ddl_guide.md)에서 학습한 DDL(CREATE, ALTER, RENAME, TRUNCATE, DROP) 및 제약조건을 온라인 쇼핑몰 **KOREA_MALL** 데이터베이스 구축 시나리오를 통해 종합적으로 연습하는 과정입니다.
+본 실습 미션은 [02_02_ddl_guide.md](./02_02_ddl_guide.md)에서 학습한 DDL(CREATE, ALTER, RENAME, TRUNCATE, DROP) 및 제약조건을 온라인 쇼핑몰 **KOREA_MALL** 데이터베이스 구축 시나리오를 통해 종합적으로 연습하는 과정입니다.
 
 ---
 

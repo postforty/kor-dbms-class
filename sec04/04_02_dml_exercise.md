@@ -1,6 +1,6 @@
 # Oracle DML(Data Manipulation Language) 기초 연습문제
 
-본 문서는 [04_01_dml_guide.md](file:///c:/Users/dandycode/Documents/GitHub/kor-dbms-class/sec04/04_01_dml_guide.md)에서 학습한 데이터 조작어(INSERT, UPDATE, DELETE)의 핵심 문법, 데이터 무결성 규칙, NULL 및 날짜 데이터 처리 방법 등을 점검하기 위한 연습문제입니다.
+본 문서는 [04_01_dml_guide.md](./04_01_dml_guide.md)에서 학습한 데이터 조작어(INSERT, UPDATE, DELETE)의 핵심 문법, 데이터 무결성 규칙, NULL 및 날짜 데이터 처리 방법 등을 점검하기 위한 연습문제입니다.
 
 각 문제를 풀고 하단의 정답 및 해설을 펼쳐 정답 여부와 상세 원리를 확인해 보세요.
 
