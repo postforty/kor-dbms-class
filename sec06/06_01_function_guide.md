@@ -2,7 +2,7 @@
 
 오라클 SQL에서 함수(Function)는 데이터 조작 및 계산, 포맷 변환, 조건 제어 등을 수행하는 핵심 도구입니다. 단일행 함수(Single-Row Function)는 테이블의 **각 행(Row)마다 개별적으로 적용되어 행당 하나의 결과를 반환**하는 특징을 가집니다.
 
-이번 실습에서는 교재 내용을 바탕으로 **문자 함수, 숫자 함수, 날짜 함수, 형 변환 함수, NULL 처리 함수, 조건 제어문(DECODE, CASE WHEN)**을 단계별 실습 예제와 함께 학습합니다.
+이번 실습에서는 교재 내용을 바탕으로 **문자 함수, 숫자 함수, 날짜 함수, 형 변환 함수, NULL 처리 함수, 조건 제어문(DECODE, CASE WHEN)을** 단계별 실습 예제와 함께 학습합니다.
 
 > [!NOTE]
 > **📖 SQL 문법 표기 규칙 안내**
@@ -2976,6 +2976,51 @@ FROM products;
 >    - 고객 구매 금액 구간에 따른 VIP / GOLD / SILVER 회원 등급 산정
 >    - 주문 배송 소요 일수에 따른 당일배송 / 익일배송 / 지연배송 라벨링
 
+### 45.3 추가 실습 예시 쿼리
+
+`KOREA_MALL` 샘플 데이터(`db_sample`)의 다양한 테이블(`products`, `reviews`, `order_items`)을 활용한 검색 CASE 추가 응용 예시입니다.
+
+```sql
+-- [예시 1] products 테이블: 가격(price) 대역에 따른 가격대 분류 (고가 / 중가 / 저가)
+SELECT
+    name AS "상품명",
+    price AS "판매가격",
+    CASE
+        WHEN price >= 100000 THEN '고가 상품'
+        WHEN price >= 30000  THEN '중가 상품'
+        ELSE '실속/저가 상품'
+    END AS "가격대분류"
+FROM products;
+```
+
+```sql
+-- [예시 2] reviews 테이블: 리뷰 평점(rating)에 따른 고객 만족도 평가
+SELECT
+    review_id AS "리뷰번호",
+    rating AS "평점",
+    content AS "리뷰내용",
+    CASE
+        WHEN rating >= 4 THEN '만족 (긍정)'
+        WHEN rating = 3  THEN '보통'
+        ELSE '불만족 (개선필요)'
+    END AS "만족도구분"
+FROM reviews;
+```
+
+```sql
+-- [예시 3] order_items 테이블: 주문 수량(quantity)에 따른 대량/복수/단건 구매 유형 분류
+SELECT
+    order_item_id AS "주문상세번호",
+    product_id AS "상품번호",
+    quantity AS "주문수량",
+    CASE
+        WHEN quantity >= 5 THEN '대량 주문 (추가 할인 대상)'
+        WHEN quantity >= 2 THEN '복수 구매'
+        ELSE '단건 구매'
+    END AS "주문유형"
+FROM order_items;
+```
+
 ---
 
 ## # 실습 예제 46 [★필수 실습] : 주문 상태 코드 매핑하기 (DECODE 버전)
@@ -3038,6 +3083,53 @@ FROM orders;
 > 3. 🔥 **실무 지침**:
 >    - 오라클 레거시 프로젝트나 전통적인 SQL에서는 `DECODE`가 여전히 활발히 사용되고 있으므로 반드시 읽고 쓸 줄 알아야 합니다.
 >    - 그러나 **새로 작성하는 신규 프로젝트나 표준을 준수하는 엔터프라이즈 환경에서는 가독성과 DBMS 이식성이 뛰어난 ANSI `CASE` 표현식을 사용하는 것이 현대적 표준 원칙**입니다.
+
+### 46.3 추가 실습 예시 쿼리
+
+`KOREA_MALL` 샘플 데이터(`db_sample`)를 바탕으로 `DECODE()` 함수의 동등 비교(`=`) 및 코드 변환 특성을 쉽게 익힐 수 있는 실습 예시입니다.
+
+```sql
+-- [예시 1] customers 테이블: 회원 활성 여부 플래그('Y' / 'N')를 한글 명칭으로 변환
+SELECT
+    customer_id AS "고객번호",
+    name AS "고객명",
+    is_active AS "활동코드",
+    DECODE(is_active,
+           'Y', '정상 회원',
+           'N', '휴면/탈퇴 회원',
+           '미확인') AS "계정상태"
+FROM customers;
+```
+
+```sql
+-- [예시 2] categories 테이블: 카테고리 계층 레벨(1, 2, 3)을 한글 직관 명칭으로 분류
+SELECT
+    category_id AS "카테고리ID",
+    category_name AS "카테고리명",
+    category_level AS "분류레벨",
+    DECODE(category_level,
+           1, '대분류',
+           2, '중분류',
+           3, '소분류',
+           '기타분류') AS "분류구분"
+FROM categories;
+```
+
+```sql
+-- [예시 3] reviews 테이블: 평점 숫자(1~5)를 텍스트 별점(★) 기호로 변환
+SELECT
+    review_id AS "리뷰번호",
+    product_id AS "상품번호",
+    rating AS "평점",
+    DECODE(rating,
+           5, '★★★★★ (최고)',
+           4, '★★★★☆ (우수)',
+           3, '★★★☆☆ (보통)',
+           2, '★★☆☆☆ (미흡)',
+           1, '★☆☆☆☆ (불만)',
+           '평점없음') AS "별점평가"
+FROM reviews;
+```
 
 ---
 
