@@ -47,7 +47,7 @@ Oracle AI Database 26ai와 DBeaver를 활용한 관계형 데이터베이스(RDB
 | **05** | 정렬 및 결과 제한 | [정렬 가이드](./sec05/05_01_order_by_guide.md) · [정렬 실습](./sec05/05_02_order_by_exercise.md) |
 | **06** | 제어문 및 단일행함수 | [함수 가이드](./sec06/06_01_function_guide.md) · [함수 실습](./sec06/06_02_function_exercise.md) |
 | **07** | 그룹함수 및 집계 | [그룹함수 가이드](./sec07/07_01_group_function_guide.md) · [그룹함수 실습](./sec07/07_02_group_function_exercise.md) |
-| **08** | 다중 테이블 (JOIN) | *(실습 준비 중)* |
+| **08** | 다중 테이블 (JOIN) | [조인 가이드](./sec08/08_01_join_guide.md) · [조인 실습](./sec08/08_02_join_exercise.md) |
 | **09** | 서브쿼리 (Subquery) | [서브쿼리 가이드](./sec09/09_01_subquery_guide.md) · [서브쿼리 실습](./sec09/09_02_subquery_exercise.md) |
 | **10** | 고급 활용 (INDEX/VIEW) | *(실습 준비 중)* |
 
