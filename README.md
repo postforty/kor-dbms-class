@@ -1,7 +1,7 @@
 # Oracle AI Database 실습 과정 (`kor-dbms-class`)
 
 Oracle AI Database 26ai와 DBeaver를 활용한 관계형 데이터베이스(RDBMS) 및 SQL 실습 강의 저장소입니다.  
-가상 이커머스 도메인인 **`KOREA_MALL`**의 6대 핵심 테이블을 기반으로 DDL/DML 기초부터 고급 쿼리까지 단계별로 학습합니다.
+가상 이커머스 도메인인 `KOREA_MALL`의 6대 핵심 테이블을 기반으로 DDL/DML 기초부터 고급 쿼리까지 단계별로 학습합니다.
 
 ---
 
@@ -13,10 +13,10 @@ Oracle AI Database 26ai와 DBeaver를 활용한 관계형 데이터베이스(RDB
 | **Tool** | DBeaver ([설치 및 설정 가이드](./dbeaver_guide.md)) |
 | **Host / Port** | `localhost` / `1521` |
 | **Database / Service** | `FREEPDB1` |
-| **실습 계정 / 암호** | **`KOREA_MALL`** / `1234` |
-| **Active Schema** | **`KOREA_MALL`** |
+| **실습 계정 / 암호** | `KOREA_MALL` / `1234` |
+| **Active Schema** | `KOREA_MALL` |
 
-> ⚠️ **주의**: 사용자 생성 및 권한 설정은 `SYSTEM` 관리자 세션에서 진행하며, 테이블 생성(DDL) 및 데이터 조작/조회(DML/SELECT)는 실습 전용 세션인 **`KOREA_MALL`** 편집기에서 실행합니다.
+> ⚠️ **주의**: 사용자 생성 및 권한 설정은 `SYSTEM` 관리자 세션에서 진행하며, 테이블 생성(DDL) 및 데이터 조작/조회(DML/SELECT)는 실습 전용 세션인 `KOREA_MALL` 편집기에서 실행합니다.
 
 ---
 

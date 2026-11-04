@@ -1,6 +1,6 @@
 # [트러블슈팅] CREATE TABLE 실행 시 ORA-01031 (권한이 불충분합니다) 해결 가이드
 
-오라클(Oracle 23ai / 21c / 19c) 실습 환경에서 실습용 일반 사용자(`KOREA_MALL`)를 생성하고 `CREATE TABLE`을 실행할 때 발생하는 **`ORA-01031: 권한이 불충분합니다`** 오류의 원인과 단계별 해결 방안을 정리한 문서입니다.
+오라클(Oracle 23ai / 21c / 19c) 실습 환경에서 실습용 일반 사용자(`KOREA_MALL`)를 생성하고 `CREATE TABLE`을 실행할 때 발생하는 `ORA-01031: 권한이 불충분합니다` 오류의 원인과 단계별 해결 방안을 정리한 문서입니다.
 
 ---
 
@@ -34,7 +34,7 @@ CREATE TABLE customer_ex_ddl (
 
 ### ① 기본 테이블스페이스가 `SYSTEM`으로 설정된 경우 (가장 흔함)
 - `CREATE USER` 시점에 `DEFAULT TABLESPACE`를 명시하지 않으면 PDB 환경 기본값에 따라 **`SYSTEM` 테이블스페이스**가 기본 저장소로 지정될 수 있습니다.
-- 오라클은 데이터베이스 무결성과 보안을 위해 **일반 사용자가 `SYSTEM` 테이블스페이스에 테이블을 만드는 것을 원천 차단(ORA-01031 발생)**합니다.
+- 오라클은 데이터베이스 무결성과 보안을 위해 **일반 사용자가 `SYSTEM` 테이블스페이스에 테이블을 만드는 것을 원천 차단**(ORA-01031 발생)합니다.
 
 ### ② 테이블스페이스 Quota(할당량) 또는 `UNLIMITED TABLESPACE` 누락
 - 오라클 12c 이후(19c, 21c, 23ai)부터는 `RESOURCE` 롤에 **`UNLIMITED TABLESPACE` 권한이 자동으로 포함되지 않습니다.**
@@ -120,9 +120,9 @@ CREATE TABLE KOREA_MALL.customer_ex_ddl (
      ```sql
      ALTER SESSION SET CURRENT_SCHEMA = KOREA_MALL;
      ```
-   - **UI에서 전환**: DBeaver 상단 툴바의 활성 스키마 드롭다운에서 **`<FREEPDB1> KOREA_MALL`**을 선택하거나, 좌측 내비게이터의 `KOREA_MALL` 스키마 우클릭 → **`Set as default` (단축키: `Ctrl + Shift + A`)**를 클릭합니다.
+   - **UI에서 전환**: DBeaver 상단 툴바의 활성 스키마 드롭다운에서 **`<FREEPDB1> KOREA_MALL`을 선택하거나, 좌측 내비게이터의 `KOREA_MALL` 스키마 우클릭 → `Set as default`** (단축키: `Ctrl + Shift + A`)를 클릭합니다.
 2. **연결 새로고침**:
-   - 좌측 [데이터베이스 내비게이터]에서 `KOREA_MALL` 연결 우클릭 → **연결 해제(Disconnect)** 후 다시 **연결(Connect)**하여 새로 부여된 시스템 권한이 세션에 온전히 반영되도록 합니다.
+   - 좌측 [데이터베이스 내비게이터]에서 `KOREA_MALL` 연결 우클릭 → **연결 해제**(Disconnect) 후 다시 **연결**(Connect)하여 새로 부여된 시스템 권한이 세션에 온전히 반영되도록 합니다.
 3. **생성 확인**:
    - 테이블이 정상 생성되었는지 확인:
      ```sql
@@ -135,8 +135,8 @@ CREATE TABLE KOREA_MALL.customer_ex_ddl (
 
 | 점검 항목 | 권장 설정값 | 미설정 시 발생하는 문제 |
 | :--- | :--- | :--- |
-| **접속 사용자 (`USER`)** | `KOREA_MALL` | `SYSTEM` 세션 오염 또는 타 계정 충돌 |
-| **활성 스키마 (`CURRENT_SCHEMA`)** | `KOREA_MALL` | 타 스키마 생성 시도 (`CREATE ANY TABLE` 필요 에러) |
-| **기본 테이블스페이스 (`DEFAULT_TS`)** | `USERS` | `SYSTEM` 공간 생성 차단으로 인한 `ORA-01031` |
+| **접속 사용자** (`USER`) | `KOREA_MALL` | `SYSTEM` 세션 오염 또는 타 계정 충돌 |
+| **활성 스키마** (`CURRENT_SCHEMA`) | `KOREA_MALL` | 타 스키마 생성 시도 (`CREATE ANY TABLE` 필요 에러) |
+| **기본 테이블스페이스** (`DEFAULT_TS`) | `USERS` | `SYSTEM` 공간 생성 차단으로 인한 `ORA-01031` |
 | **테이블스페이스 사용 권한** | `UNLIMITED TABLESPACE` 또는 `QUOTA ON USERS` | 데이터 저장 불가 (`ORA-01031` 또는 `ORA-01950`) |
 | **시스템 권한** | `CREATE TABLE` 직접 부여 | 롤 미반영 시 `ORA-01031` |

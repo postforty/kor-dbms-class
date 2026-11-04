@@ -21,12 +21,12 @@
 ### **정답: ① `SELECT name, email FROM customers WHERE is_active = 'Y';`**
 
 ### **💡 해설**
-- SQL `SELECT` 문의 표준 구문 순서는 **`SELECT 컬럼목록 FROM 테이블명 WHERE 조건절;`** 입니다.
+- SQL `SELECT` 문의 표준 구문 순서는 `SELECT 컬럼목록 FROM 테이블명 WHERE 조건절;` 입니다.
 - 문자열 리터럴 값 `'Y'`는 작은따옴표(`' '`)로 올바르게 감싸져 있으며, 콤마(`,`)를 통한 다중 컬럼 지정도 정확합니다.
 
 ### **❌ 오답 분석**
-- **② `SELECT * customers WHERE ...`**: 테이블을 지정하는 필수 키워드인 **`FROM`이 누락**되었습니다. (`SELECT * FROM customers ...`)
-- **③ `SELECT ... FROM customers IS_ACTIVE = 'Y';`**: 조건식을 시작하는 **`WHERE` 키워드가 누락**되었습니다.
+- **② `SELECT * customers WHERE ...`: 테이블을 지정하는 필수 키워드인 `FROM`이 누락**되었습니다. (`SELECT * FROM customers ...`)
+- **③ `SELECT ... FROM customers IS_ACTIVE = 'Y';`: 조건식을 시작하는 `WHERE` 키워드가 누락**되었습니다.
 - **④ `FROM customers SELECT ...`**: SQL 문장은 반드시 `SELECT` 절로 시작해야 합니다. `FROM` 절을 맨 앞에 배치할 수 없습니다.
 
 </details>
@@ -130,8 +130,8 @@
 ### **정답: ② `SELECT name AS "고객명" FROM customers;`**
 
 ### **💡 해설**
-- 컬럼에 별칭을 부여할 때는 **`컬럼명 AS "별칭"`** 형식을 사용합니다.
-- 특히 별칭이 **한글**, 공백, 특수문자를 포함하거나 영문 대소문자를 구분해야 할 때는 **반드시 큰따옴표(`""`)**로 감싸주어야 Oracle의 표준 식별자 규칙에 완전히 부합합니다.
+- 컬럼에 별칭을 부여할 때는 `컬럼명 AS "별칭"` 형식을 사용합니다.
+- 특히 별칭이 **한글**, 공백, 특수문자를 포함하거나 영문 대소문자를 구분해야 할 때는 **반드시 큰따옴표**(`""`)로 감싸주어야 Oracle의 표준 식별자 규칙에 완전히 부합합니다.
 
 ### **❌ 오답 분석**
 - **①**: `AS` 키워드가 누락되었고 큰따옴표도 감싸지 않아 가독성과 식별자 명확성이 떨어집니다.
@@ -162,7 +162,7 @@ B. SELECT * FROM reviews WHERE rating = 1 OR rating = 5;
 ### **정답: ③ 두 쿼리는 실행 결과가 동일하다.**
 
 ### **💡 해설**
-- **`IN` 연산자는 다중 `OR` 조건의 문법적 설탕(Syntactic Sugar)**입니다.
+- **`IN` 연산자는 다중 `OR` 조건의 문법적 설탕**(Syntactic Sugar)입니다.
 - `WHERE rating IN (1, 5)`는 내부적으로 `WHERE rating = 1 OR rating = 5`와 동일하게 해석되므로 **두 쿼리의 결과 셋은 100% 동일**합니다.
 
 ### **❌ 오답 분석**
@@ -199,7 +199,7 @@ B. SELECT * FROM reviews WHERE rating = 1 OR rating = 5;
 ### **💡 해설**
 - `WHERE is_active = 'Y'`: 현재 활동 중인 고객(`활성 고객`)만 필터링합니다.
 - `registered_date BETWEEN TO_DATE('2025-01-01', 'YYYY-MM-DD') AND TO_DATE('2025-06-30', 'YYYY-MM-DD')`: 2025년 1월 1일부터 2025년 6월 30일까지(`2025년 상반기`) 등록된 가입 건만 선별합니다.
-- 두 조건이 **`AND` (교집합)**로 연결되어 있으므로, **"활성 고객이면서 동시에 2025년 상반기에 가입한 고객"**만 조회됩니다.
+- 두 조건이 `AND` (교집합)로 연결되어 있으므로, "**활성 고객이면서 동시에 2025년 상반기에 가입한 고객**"만 조회됩니다.
 
 ### **❌ 오답 분석**
 - **①**: `is_active = 'Y'` 조건에 의해 비활성 고객(`'N'`)은 결과에서 완전히 제외됩니다.

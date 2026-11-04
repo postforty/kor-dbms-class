@@ -6,7 +6,7 @@ Oracle 데이터베이스 실습을 진행하기 위해 최고 관리자(`SYSTEM
 
 ## 1. 실습용 사용자 생성 및 권한 부여 (SYSTEM 계정)
 
-> ⚠️ **주의**: 아래의 계정 생성 및 권한 부여 쿼리는 반드시 **`SYSTEM` (최고 관리자)** 세션의 SQL 편집기에서 실행해야 합니다.
+> ⚠️ **주의**: 아래의 계정 생성 및 권한 부여 쿼리는 반드시 `SYSTEM` (최고 관리자) 세션의 SQL 편집기에서 실행해야 합니다.
 
 ```sql
 -- 1) 현재 접속 사용자 확인 (결과가 SYSTEM 이어야 함)
@@ -37,11 +37,11 @@ SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 | :--- | :--- | :--- | :--- |
 | **DDL** | Data Definition Language (데이터 정의어) | `CREATE`, `ALTER`, `DROP`, `TRUNCATE` | 테이블, 사용자 등 데이터베이스 객체의 구조를 생성·수정·삭제 |
 | **DML** | Data Manipulation Language (데이터 조작어) | `SELECT`, `INSERT`, `UPDATE`, `DELETE` | 테이블 내부의 데이터를 조회하고 추가·수정·삭제 |
-| **DCL** | **Data Control Language (데이터 제어어)** | **`GRANT`**, **`REVOKE`** | 데이터베이스 접근 및 객체 사용에 관한 **권한을 부여하거나 회수** |
+| **DCL** | **Data Control Language** (데이터 제어어) | **`GRANT`, `REVOKE`** | 데이터베이스 접근 및 객체 사용에 관한 **권한을 부여하거나 회수** |
 | **TCL** | Transaction Control Language (트랜잭션 제어어) | `COMMIT`, `ROLLBACK`, `SAVEPOINT` | DML 작업 결과를 실제 DB에 영구 반영하거나 취소 |
 
-- **`GRANT`**: 사용자에게 특정 권한이나 롤(Role)을 **부여**합니다.
-- **`REVOKE`**: 이미 부여된 권한이나 롤을 다시 **회수(박탈)**합니다.
+- `GRANT`: 사용자에게 특정 권한이나 롤(Role)을 **부여**합니다.
+- `REVOKE`: 이미 부여된 권한이나 롤을 다시 **회수**(박탈)합니다.
   ```sql
   -- 예시: 부여했던 테이블스페이스 권한 회수
   REVOKE UNLIMITED TABLESPACE FROM KOREA_MALL;
@@ -51,21 +51,21 @@ SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 
 ### 2.2 왜 `CONNECT, RESOURCE`만 지정하는가?
 
-실습 및 애플리케이션 개발용 계정에 **`CONNECT`**와 **`RESOURCE`** 롤(Role)만 부여하는 이유는 **"개발 실습에 필요한 최소한의 권한만 안전하게 부여(최소 권한의 원칙)"**하기 위함입니다.
+실습 및 애플리케이션 개발용 계정에 `CONNECT`와 `RESOURCE` 롤(Role)만 부여하는 이유는 "**개발 실습에 필요한 최소한의 권한만 안전하게 부여** (최소 권한의 원칙)"하기 위함입니다.
 
 | 롤(Role) | 포함된 주요 시스템 권한 | 설명 및 목적 |
 | :--- | :--- | :--- |
-| **`CONNECT`** | `CREATE SESSION` | 데이터베이스에 **로그인(접속 및 세션 생성)**할 수 있는 필수 권한 |
-| **`RESOURCE`** | `CREATE TABLE`<br>`CREATE SEQUENCE`<br>`CREATE PROCEDURE`<br>`CREATE TRIGGER`<br>`CREATE TYPE` 등 | 사용자가 **자신의 스키마 내부에서 테이블, 시퀀스, 프로시저 등 주요 객체를 생성하고 관리**할 수 있는 기본 권한 모음 |
+| `CONNECT` | `CREATE SESSION` | 데이터베이스에 **로그인**(접속 및 세션 생성)할 수 있는 필수 권한 |
+| `RESOURCE` | `CREATE TABLE`<br>`CREATE SEQUENCE`<br>`CREATE PROCEDURE`<br>`CREATE TRIGGER`<br>`CREATE TYPE` 등 | 사용자가 **자신의 스키마 내부에서 테이블, 시퀀스, 프로시저 등 주요 객체를 생성하고 관리**할 수 있는 기본 권한 모음 |
 
 #### 핵심 이유
-1. **보안 및 스키마 격리 (최소 권한 원칙)**:
+1. **보안 및 스키마 격리** (최소 권한 원칙):
    - 만약 편리하다는 이유로 `DBA` 롤을 주면, 다른 사용자의 데이터를 조회/수정/삭제하거나 시스템 설정을 변경할 수 있는 치명적인 위험이 발생합니다.
    - `CONNECT, RESOURCE`만 부여하면 자신의 스키마(`KOREA_MALL`) 안에서만 자유롭게 테이블을 만들고 실습할 수 있어 시스템이 안전합니다.
 2. **개발/학습 환경의 표준 템플릿**:
    - 오라클 교재, 자격증(SQLD 등), 실무 개발 환경에서 일반 사용자 계정 생성 시 가장 널리 쓰이는 표준 관례입니다.
 
-> 💡 **참고 (포함되지 않는 권한)**:
+> 💡 **참고** (포함되지 않는 권한):
 > `CREATE VIEW`(뷰 생성)나 `CREATE SYNONYM`(동의어 생성) 등은 `RESOURCE`에 포함되어 있지 않습니다. 추후 뷰 실습 시에는 관리자(`SYSTEM`) 계정에서 `GRANT CREATE VIEW TO KOREA_MALL;`을 추가로 실행해야 합니다.
 
 ---
@@ -82,7 +82,7 @@ INSERT INTO customer_ex_ddl (customer_id, name) VALUES (1, '홍길동');
 ```
 
 #### 2) 왜 `CREATE TABLE` 할 때는 에러가 안 나고 `INSERT` 할 때 날까?
-오라클(11g R2 이후)은 **지연 세그먼트 생성(Deferred Segment Creation)** 기능이 기본으로 켜져 있습니다:
+오라클(11g R2 이후)은 **지연 세그먼트 생성**(Deferred Segment Creation) 기능이 기본으로 켜져 있습니다:
 - **`CREATE TABLE` 시점**: 실제 디스크 공간을 할당하지 않고 테이블의 정의(메타데이터)만 등록하므로 에러 없이 성공합니다.
 - **첫 `INSERT` 시점**: 실제 데이터를 디스크에 쓰기 위해 테이블스페이스(기본: USERS)에 저장 공간(세그먼트) 할당을 요청하며, 이때 사용자에게 할당된 용량(Quota)이 없음을 감지하고 `ORA-01950` 오류를 냅니다.
 
@@ -119,15 +119,15 @@ DROP USER KOREA_MALL CASCADE;
 사용자 생성이 완료되면 DBeaver에서 새 연결을 생성하여 실습용 세션으로 전환합니다.
 
 ### 4.1 DBeaver 새 연결(Connection) 생성
-1. DBeaver 상단 메뉴: **데이터베이스(Database) → 새 데이터베이스 연결(New Database Connection)**
-2. **Oracle** 선택 후 **다음(Next)**
+1. DBeaver 상단 메뉴: **데이터베이스(Database) → 새 데이터베이스 연결**(New Database Connection)
+2. **Oracle** 선택 후 **다음**(Next)
 3. 연결 정보 입력:
    - **Host**: `localhost`
    - **Port**: `1521`
-   - **Database (Service Name)**: `FREEPDB1`
+   - **Database** (Service Name): `FREEPDB1`
    - **Username**: `KOREA_MALL`
    - **Password**: `1234`
-4. **Test Connection(연결 테스트)** 클릭하여 정상 연결(`Connected`) 확인 후 **완료(Finish)**
+4. **Test Connection**(연결 테스트) 클릭하여 정상 연결(`Connected`) 확인 후 **완료**(Finish)
 
 ### 4.2 실습 세션 확인 및 주의사항
 1. 생성된 `KOREA_MALL` 연결을 선택하고 새 SQL 편집기(`Ctrl + ]`)를 엽니다.
@@ -160,8 +160,8 @@ SELECT * FROM customers;
 
 #### 방법 2: DBeaver UI에서 기본 스키마 활성화하기
 1. **상단 툴바 드롭다운 선택**:
-   - SQL 편집기 바로 위(또는 DBeaver 상단 툴바)의 데이터베이스 연결(`FREEPDB1`) 옆 스키마 선택 드롭다운을 클릭하여 **`KOREA_MALL`**을 선택합니다.
+   - SQL 편집기 바로 위(또는 DBeaver 상단 툴바)의 데이터베이스 연결(`FREEPDB1`) 옆 스키마 선택 드롭다운을 클릭하여 `KOREA_MALL`을 선택합니다.
 2. **데이터베이스 내비게이터에서 설정**:
-   - 좌측 트리 메뉴의 [데이터베이스 내비게이터]에서 `FREEPDB1` → `Schemas` → **`KOREA_MALL`** 스키마를 우클릭합니다.
-   - **`Set as default` (단축키: `Ctrl + Shift + A`)**를 클릭하여 활성화합니다.
+   - 좌측 트리 메뉴의 [데이터베이스 내비게이터]에서 `FREEPDB1` → `Schemas` → `KOREA_MALL` 스키마를 우클릭합니다.
+   - `Set as default` (단축키: `Ctrl + Shift + A`)를 클릭하여 활성화합니다.
 

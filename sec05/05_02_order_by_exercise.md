@@ -33,10 +33,10 @@
   FROM products
   ORDER BY name ASC;
   ```
-- 문제 요구사항인 **"products 테이블에서 상품명을 오름차순으로 정렬하여 전체 목록을 조회"**를 충족하기 위해:
-  1. 조회 대상 테이블(`FROM` 절): **`products`**
-  2. 정렬 기준 컬럼(`ORDER BY` 절): 상품명 컬럼인 **`name`**
-  3. 조회 대상 컬럼(`SELECT` 절): 상품 정보인 **`name, price`**
+- 문제 요구사항인 "**products 테이블에서 상품명을 오름차순으로 정렬하여 전체 목록을 조회**"를 충족하기 위해:
+  1. 조회 대상 테이블(`FROM` 절): `products`
+  2. 정렬 기준 컬럼(`ORDER BY` 절): 상품명 컬럼인 `name`
+  3. 조회 대상 컬럼(`SELECT` 절): 상품 정보인 `name, price`
 - 따라서 네 개의 빈칸에 순서대로 `name, price, products, name`이 채워진 ①번이 올바른 정답입니다.
 - *(참고: `ORDER BY` 절에서 `ASC`(오름차순)는 기본값이므로 생략할 수 있지만, 문제 구문에 `ASC;`가 이미 주어져 있으므로 기준 컬럼명 `name`만 올바르게 입력하면 됩니다.)*
 
@@ -64,15 +64,15 @@
 
 ### **💡 해설**
 - **다중 정렬(Multi-Column Sort) 기준 설정**:
-  1. **1차 정렬 기준 (별점이 높은 순)**: 큰 점수부터 작은 점수 순이므로 내림차순인 **`rating DESC`**를 적용합니다.
-  2. **2차 정렬 기준 (별점이 같을 때 작성일이 오래된 순)**: 과거 날짜부터 최신 날짜 순(오래된 순)이므로 날짜 값이 작은 것부터 큰 것으로 나열하는 오름차순인 **`created_at ASC`**를 적용합니다.
+  1. **1차 정렬 기준** (별점이 높은 순): 큰 점수부터 작은 점수 순이므로 내림차순인 `rating DESC`를 적용합니다.
+  2. **2차 정렬 기준** (별점이 같을 때 작성일이 오래된 순): 과거 날짜부터 최신 날짜 순(오래된 순)이므로 날짜 값이 작은 것부터 큰 것으로 나열하는 오름차순인 `created_at ASC`를 적용합니다.
 - `ORDER BY` 절에서 컬럼들을 쉼표(`,`)로 구분하여 나열하면 왼쪽부터 우선순위가 부여되므로 `ORDER BY rating DESC, created_at ASC;`가 완벽하게 일치합니다.
 
 ### **📅 날짜 컬럼 정렬 방향 핵심 정리**
 | 정렬 키워드 | 정렬 방향 | 날짜 해석 | 비즈니스 표현 |
 | :---: | :---: | :---: | :---: |
-| **`ASC`** | 작은 값 → 큰 값 | 과거 날짜 → 최신 날짜 | **오래된 순**, 등록순 |
-| **`DESC`** | 큰 값 → 작은 값 | 최신 날짜 → 과거 날짜 | **최신순**, 최근 등록순 |
+| `ASC` | 작은 값 → 큰 값 | 과거 날짜 → 최신 날짜 | **오래된 순**, 등록순 |
+| `DESC` | 큰 값 → 작은 값 | 최신 날짜 → 과거 날짜 | **최신순**, 최근 등록순 |
 
 ### **❌ 오답 분석**
 - **① `ORDER BY rating, created_at;`**: `rating`과 `created_at` 모두 `ASC`가 기본 적용되어 별점이 낮은 순(1점→5점)으로 정렬되므로 요구사항(별점이 높은 순)과 반대로 동작합니다.
@@ -106,7 +106,7 @@
 ### **❌ 오답 분석**
 - **① `SELECT category_id FROM products;`**: 중복 제거 키워드가 없어 등록된 모든 상품 행의 `category_id`가 반복 출력됩니다.
 - **② `SELECT category_id FROM products GROUP BY category_id;`**: 결과적으로 중복이 합쳐진 카테고리 목록이 나오긴 하지만, `GROUP BY`는 본래 집계 함수(`COUNT`, `SUM` 등)와 함께 통계 그룹을 생성하기 위한 절입니다. 단순히 고유 목록을 추출하기 위한 목적에는 `DISTINCT`가 문법적 의도에 부합합니다.
-- **④ `SELECT UNIQUE category_id FROM products;`**: Oracle Database는 과거 하위 호환성을 위해 `UNIQUE`를 `DISTINCT`의 동의어로 허용하긴 하지만, 이는 ANSI SQL 표준 문법이 아닌 Oracle 고유의 레거시(구형) 비표준 문법입니다. 실무 및 자격시험에서는 표준 키워드인 **`DISTINCT`**가 정답입니다.
+- **④ `SELECT UNIQUE category_id FROM products;`: Oracle Database는 과거 하위 호환성을 위해 `UNIQUE`를 `DISTINCT`의 동의어로 허용하긴 하지만, 이는 ANSI SQL 표준 문법이 아닌 Oracle 고유의 레거시(구형) 비표준 문법입니다. 실무 및 자격시험에서는 표준 키워드인 `DISTINCT`**가 정답입니다.
 
 </details>
 
@@ -114,7 +114,7 @@
 
 ## Q4. 행 수 제한과 Top-N 쿼리 (복수정답 허용)
 
-**리뷰 테이블에서 가장 최근에 작성된 5개의 리뷰만 조회하고자 한다. 올바른 SQL은? (복수정답 허용)**
+**리뷰 테이블에서 가장 최근에 작성된 5개의 리뷰만 조회하고자 한다. 올바른 SQL은?** (복수정답 허용)
 
 ① `SELECT * FROM reviews ORDER BY created_at DESC FETCH FIRST 5 ROWS ONLY;`  
 ② `SELECT * FROM reviews WHERE ROWNUM <= 5 ORDER BY created_at DESC;`  
@@ -127,15 +127,15 @@
 ### **정답: ①, ③**
 
 ### **💡 해설**
-- **가장 최근에 작성된 5개 리뷰(Top-5)**를 조회하는 올바른 방법은 두 가지입니다:
-  1. **①번 (최신 SQL 표준 방식, Oracle 12c+)**:
+- **가장 최근에 작성된 5개 리뷰**(Top-5)를 조회하는 올바른 방법은 두 가지입니다:
+  1. **①번** (최신 SQL 표준 방식, Oracle 12c+):
      - `ORDER BY created_at DESC FETCH FIRST 5 ROWS ONLY;`
      - 정렬이 완료된 최종 결과에서 상위 5건만 가져오는 직관적이고 표준적인 Row Limiting 문법입니다.
-  2. **③번 (전통적 서브쿼리 방식, Oracle 전 버전 공통)**:
+  2. **③번** (전통적 서브쿼리 방식, Oracle 전 버전 공통):
      - `SELECT * FROM (SELECT * FROM reviews ORDER BY created_at DESC) WHERE ROWNUM <= 5;`
      - 안쪽 서브쿼리(인라인 뷰)에서 전체 리뷰를 작성일 최신순(`created_at DESC`)으로 먼저 확실하게 정렬한 뒤, 바깥쪽 쿼리에서 이미 정렬된 결과 집합에 1번부터 차례대로 `ROWNUM <= 5`를 적용하므로 정확한 최신 5건이 보장됩니다.
 
-### **⚠️ ②번이 오답인 이유 (SQL 실행 순서와 ROWNUM의 함정)**
+### **⚠️ ②번이 오답인 이유** (SQL 실행 순서와 ROWNUM의 함정)
 ```sql
 -- [잘못된 쿼리] 절대 이렇게 작성하면 안 됩니다!
 SELECT * FROM reviews
@@ -169,10 +169,10 @@ ORDER BY created_at DESC;
 ### **정답: ② `OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY`**
 
 ### **💡 해설**
-- **`OFFSET n ROWS`**: 결과 집합의 앞부분에서 **건너뛸(Skip) 행의 개수**를 지정합니다.
-  - **"6번째 행부터"** 출력하려면 앞선 **1번째부터 5번째까지 총 5개 행을 건너뛰어야** 하므로 **`OFFSET 5 ROWS`**가 되어야 합니다. (`OFFSET 6 ROWS`는 6개를 건너뛰어 7번째부터 출력됨)
-- **`FETCH NEXT n ROWS ONLY`**: 건너뛴 위치에서부터 **가져올 행의 개수**를 지정합니다.
-  - 5개 행을 가져와야 하므로 **`FETCH NEXT 5 ROWS ONLY`** (또는 `FETCH FIRST 5 ROWS ONLY`)를 사용합니다.
+- `OFFSET n ROWS`: 결과 집합의 앞부분에서 **건너뛸(Skip) 행의 개수**를 지정합니다.
+  - "**6번째 행부터**" 출력하려면 앞선 **1번째부터 5번째까지 총 5개 행을 건너뛰어야** 하므로 `OFFSET 5 ROWS`가 되어야 합니다. (`OFFSET 6 ROWS`는 6개를 건너뛰어 7번째부터 출력됨)
+- `FETCH NEXT n ROWS ONLY`: 건너뛴 위치에서부터 **가져올 행의 개수**를 지정합니다.
+  - 5개 행을 가져와야 하므로 `FETCH NEXT 5 ROWS ONLY` (또는 `FETCH FIRST 5 ROWS ONLY`)를 사용합니다.
 - 완성된 페이징 쿼리:
   ```sql
   SELECT name, price
@@ -181,14 +181,14 @@ ORDER BY created_at DESC;
   OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;
   ```
 
-### **⚠️ ③, ④번이 오답인 이유 (ROWNUM의 1-based 시작 특성)**
+### **⚠️ ③, ④번이 오답인 이유** (ROWNUM의 1-based 시작 특성)
 - `ROWNUM`은 행이 추출될 때 `1`부터 번호가 부여되며, 조건 검사를 통과해야 다음 번호가 1씩 증가합니다.
 - `WHERE ROWNUM >= 6` 또는 `ROWNUM BETWEEN 6 AND 10`을 직접 지정하면:
   1. 첫 번째 행을 읽고 `ROWNUM = 1`을 검사합니다.
   2. `1 >= 6`은 거짓(False)이므로 첫 번째 행이 버려집니다.
   3. 두 번째 행을 읽을 때도 이전 행이 채택되지 않았으므로 여전히 `ROWNUM = 1`로 검사합니다.
   4. 역시 거짓이므로 버려집니다.
-  5. 결국 모든 행이 버려져 **결과가 0건(Empty Result)** 반환되는 치명적인 논리 오류가 발생합니다.
+  5. 결국 모든 행이 버려져 **결과가 0건**(Empty Result) 반환되는 치명적인 논리 오류가 발생합니다.
 
 ### **❌ 오답 분석**
 - **① `OFFSET 6 ROWS ...`**: 6개 행을 건너뛰므로 6번째가 아닌 **7번째 행부터** 출력됩니다.
@@ -208,4 +208,4 @@ ORDER BY created_at DESC;
 | **중복 제거** | `SELECT DISTINCT 컬럼1, 컬럼2` | • 선택한 모든 컬럼의 조합이 완벽히 일치하는 중복 행을 제거<br>• `SELECT` 바로 뒤에 위치하며, 대량 데이터 시 정렬/해시 부하 고려 필요 |
 | **최신 행 수 제한** | `FETCH FIRST n ROWS ONLY` | • Oracle 12c+ SQL 표준 문법<br>• `ORDER BY` 정렬이 완료된 최종 결과 집합에서 상위 `n`건만 추출 |
 | **표준 페이징** | `OFFSET n ROWS FETCH NEXT m ROWS ONLY` | • 앞의 `n`개 행을 건너뛰고(Skip) 그다음 `m`개 행을 반환<br>• 예: 6번째부터 5개 조회 시 `OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY` |
-| **전통 Top-N (ROWNUM)** | `SELECT * FROM (SELECT ... ORDER BY ...) WHERE ROWNUM <= n;` | • `WHERE` 절이 `ORDER BY`보다 먼저 실행되므로 반드시 **인라인 뷰(서브쿼리)**로 먼저 정렬 후 외부에서 `ROWNUM` 적용 필수 |
+| **전통 Top-N** (ROWNUM) | `SELECT * FROM (SELECT ... ORDER BY ...) WHERE ROWNUM <= n;` | • `WHERE` 절이 `ORDER BY`보다 먼저 실행되므로 반드시 **인라인 뷰**(서브쿼리)로 먼저 정렬 후 외부에서 `ROWNUM` 적용 필수 |
