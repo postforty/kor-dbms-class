@@ -1,4 +1,4 @@
-# Oracle SQL 그룹 함수(Group Functions) 및 데이터 집계 실습 가이드
+﻿# Oracle SQL 그룹 함수(Group Functions) 및 데이터 집계 실습 가이드
 
 오라클 SQL에서 **그룹 함수**(Group Function 또는 집계 함수 Aggregate Function)는 여러 행(Row)의 데이터를 입력받아 합계, 평균, 최댓값, 최솟값, 건수 등의 **단 하나의 요약 결과 행을 반환**하는 핵심 함수입니다.
 
@@ -1777,15 +1777,24 @@ ORDER BY "요약단계", category_id, name;
 > 2. **복잡한 `AND/OR` 조건을 정수 하나로 단순화**:
 >    - 이전 예제처럼 `WHERE`나 `CASE`문에서 `GROUPING(A) = 1 AND GROUPING(B) = 1`과 같이 긴 논리식을 쓸 필요 없이, 단지 `GROUPING_ID(A, B) = 3` 또는 `GROUPING_ID(A, B) IN (1, 3)` 처럼 정수 하나로 집계 단계를 직관적이고 강력하게 통제할 수 있습니다.
 > 
-> 3. 🔥 **실무 심화: `HAVING` 절과의 결합을 통한 특정 집계 레벨만 선별하기**:
->    - `ROLLUP`으로 전체 연산을 수행한 뒤, `HAVING` 절에 `GROUPING_ID()`를 사용하면 원하는 레벨의 집계 행만 손쉽게 필터링할 수 있습니다:
+> 3. 🔥 **실무 심화: `HAVING` 절과의 결합을 통한 소계/총계 요약표 필터링 패턴**:
+>    - `GROUPING_ID`의 진가는 `HAVING` 절과 결합할 때 발휘됩니다. 실무 경영진 보고서에서는 상세 내역(레벨 `0`)을 제외하고 **카테고리별 소계(레벨 `1`)와 전체 총합계(레벨 `3`)만 일목요연하게 요약**해야 하는 경우가 많습니다.
+>    - `HAVING GROUPING_ID(...) IN (1, 3)`을 적용하면 별도의 서브쿼리나 복잡한 임시 테이블 없이도 한 번의 쿼리로 순수 요약 보고서를 완성할 수 있습니다:
 >      ```sql
->      -- [소계와 총계만 조회하고 상세 데이터는 제외하는 실무 튜닝 패턴]
->      SELECT category_id, name, SUM(stock_quantity) AS "총재고"
+>      -- [소계(1)와 총계(3)만 추출하여 경영진 요약 리포트를 구성하는 실무 쿼리]
+>      SELECT
+>          category_id AS "카테고리ID",
+>          name AS "상품명",
+>          SUM(stock_quantity) AS "총재고",
+>          GROUPING_ID(category_id, name) AS "요약단계"
 >      FROM products
 >      GROUP BY ROLLUP(category_id, name)
->      HAVING GROUPING_ID(category_id, name) IN (1, 3);
+>      HAVING GROUPING_ID(category_id, name) IN (1, 3)
+>      ORDER BY "요약단계", category_id, name;
 >      ```
+>    - **실행 결과 관찰**:
+>      - 수십 건에 달하는 개별 상품 행(레벨 0)이 모두 제거됩니다.
+>      - 카테고리 7~11번의 소계 5건(`요약단계 = 1`)과 전체 총재고 1건(`요약단계 = 3`, 총재고 7,060)만 깔끔하게 출력되어 가독성이 극대화됩니다.
 > 
 > 4. **실무 활용 사례**:
 >    - **다차원 데이터마트**(DW/OLAP): 계층형 큐브 팩트 테이블 구축 시 집계 레벨 식별 컬럼(`LEVEL_ID`)으로 저장
