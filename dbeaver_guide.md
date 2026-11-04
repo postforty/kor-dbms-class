@@ -52,7 +52,7 @@
 - **커밋 모드 확인**:
   - 상단 툴바의 트랜잭션 모드 아이콘 확인 (Auto: 자동 커밋 / Manual: 수동 커밋).
   - DBeaver 기본값이 Auto-commit일 수 있으므로 주의할 것.
-- **수동 커밋 모드 사용 (실습 시 권장)**:
+- **수동 커밋 모드 사용** (실습 시 권장):
   - 툴바에서 **Manual Commit** 모드로 전환.
   - 데이터 변경(INSERT/UPDATE/DELETE) 후 작업 완료 시 **Commit** (`Ctrl + Shift + C`) 클릭.
   - 작업 취소 및 이전 상태 원복 시 **Rollback** (`Ctrl + Shift + Z`) 클릭.

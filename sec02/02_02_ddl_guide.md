@@ -104,7 +104,7 @@ SELECT *
 FROM customers_ex_empty;
 ```
 
-> 💡 **참고 (CTAS 특징)**:
+> 💡 **참고** (CTAS 특징):
 > - `WHERE 1=0` 기법: 초기 적재 데이터 없이 동일한 구조의 빈 테이블을 빠르게 만들 때 현업에서 표준적으로 사용하는 패턴입니다.
 > - `NOT NULL` 제약조건은 유지되지만, 기본키(`PRIMARY KEY`)나 외래키(`FOREIGN KEY`), 인덱스 등은 자동 복사되지 않습니다.
 > - 실습 환경에 `customers` 테이블이 아직 없다면 앞서 생성한 `customer_ex_ddl`을 대상으로 실습할 수 있습니다 (`FROM customer_ex_ddl;`).
@@ -162,7 +162,7 @@ ALTER TABLE customers_ex_copy
 MODIFY name NUMBER;
 ```
 
-> ⚠️ **주의 (ORA-01439 오류)**:
+> ⚠️ **주의** (ORA-01439 오류):
 > - 기존 데이터가 들어있는 컬럼의 데이터 타입을 호환되지 않는 타입(`VARCHAR2` ➔ `NUMBER` 등)으로 변경하려고 하면 `ORA-01439: 열의 데이터 유형을 변경하려면 열이 비어 있어야 합니다` 오류가 발생합니다.
 > - 데이터 타입을 변경하려면 컬럼 데이터를 모두 비우거나(`NULL` 처리), 새로운 컬럼을 생성하여 형변환 후 데이터를 이전해야 합니다.
 
@@ -207,7 +207,7 @@ ALTER USER KOREA_MALL ACCOUNT UNLOCK;
 ALTER USER KOREA_MALL PASSWORD EXPIRE;
 ```
 
-> 💡 **참고 (권한)**: 
+> 💡 **참고** (권한): 
 > - 일반 사용자(`KOREA_MALL`)는 **본인 계정의 비밀번호**를 직접 변경할 수 있습니다.
 > - 다른 사용자의 비밀번호 변경, 계정 잠금/해제(`LOCK`/`UNLOCK`)는 관리자(`SYSTEM`) 계정에서 수행해야 합니다.
 
@@ -263,7 +263,7 @@ FROM user_tables
 WHERE table_name = 'CUSTOMERS_EX_RENAME';
 ```
 
-> 💡 **참고 (휴지통과 PURGE 옵션)**:
+> 💡 **참고** (휴지통과 PURGE 옵션):
 > - Oracle에서는 기본적으로 `DROP TABLE` 실행 시 테이블이 오라클 휴지통(`RECYCLEBIN`)으로 이동하여 필요 시 복구(`FLASHBACK TABLE`)할 수 있습니다.
 > - 휴지통을 거치지 않고 디스크 공간까지 즉시 영구 삭제하려면 `PURGE` 옵션을 함께 사용합니다 (`DROP TABLE 테이블명 PURGE;`).
 > - 휴지통 비우기: `PURGE RECYCLEBIN;`

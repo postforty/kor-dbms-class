@@ -89,7 +89,7 @@ ORDER BY o.customer_id ASC;
 ### **💡 해설**
 - **상관 서브쿼리(Correlated Subquery)의 동작 메커니즘**:
   - 메인 쿼리 `orders o`의 각 행을 읽을 때마다, 해당 행의 고객 ID(`o.customer_id`)를 서브쿼리 내부 조건(`WHERE o2.customer_id = o.customer_id`)으로 전달합니다.
-  - 서브쿼리는 **해당 고객이 생성한 주문들 중에서 가장 최근 주문일자(`MAX(o2.order_date)`)**를 계산하여 메인 쿼리에 전달합니다.
+  - 서브쿼리는 **해당 고객이 생성한 주문들 중에서 가장 최근 주문일자**(`MAX(o2.order_date)`)를 계산하여 메인 쿼리에 전달합니다.
   - 메인 쿼리의 주문일자(`o.order_date`)가 고객별 최근 주문일자와 일치하는 행만 최종 결과로 출력됩니다.
 
 </details>
@@ -178,7 +178,7 @@ WHERE price > ANY (
 ORDER BY product_id ASC;
 ```
 
-### **쿼리 실행 결과 예시 (상위 10건)**
+### **쿼리 실행 결과 예시** (상위 10건)
 
 | PRODUCT_ID | NAME | PRICE |
 | :---: | :--- | :---: |
@@ -198,7 +198,7 @@ ORDER BY product_id ASC;
 ### **💡 해설**
 - **`> ANY`의 비교 메커니즘**:
   - 카테고리 7번 상품들의 가격 목록은 `[10800, 9200, 12400, 13300, 17000, 7500, 16300]`입니다.
-  - `> ANY`는 이 값들 중 **어느 하나라도 만족하면 참(OR)**이 되므로, 실질적으로 **카테고리 7번 상품들의 최솟값(7,500원)을 초과하는 조건(`price > MIN(price)`)과 동일**하게 평가됩니다.
+  - `> ANY`는 이 값들 중 **어느 하나라도 만족하면 참**(OR)이 되므로, 실질적으로 **카테고리 7번 상품들의 최솟값(7,500원)을 초과하는 조건(`price > MIN(price)`)과 동일**하게 평가됩니다.
   - 따라서 7,500원보다 비싼 상품 총 21건이 올바르게 추출됩니다.
 
 </details>
@@ -230,7 +230,7 @@ WHERE price > ALL (
 ORDER BY product_id ASC;
 ```
 
-### **쿼리 실행 결과 예시 (상위 10건)**
+### **쿼리 실행 결과 예시** (상위 10건)
 
 | PRODUCT_ID | NAME | PRICE |
 | :---: | :--- | :---: |
@@ -249,8 +249,8 @@ ORDER BY product_id ASC;
 
 ### **💡 해설**
 - **`> ALL`의 비교 메커니즘**:
-  - `> ALL`은 서브쿼리가 반환하는 **모든 값보다 커야(AND)** 참이 되므로, 실질적으로 **서브쿼리 결과의 최댓값보다 큰 조건(`price > MAX(price)`)과 동일**하게 평가됩니다.
-- 💡 **심화 학습 (서브쿼리 공집합 반환 시 ALL의 특성)**:
+  - `> ALL`은 서브쿼리가 반환하는 **모든 값보다 커야**(AND) 참이 되므로, 실질적으로 **서브쿼리 결과의 최댓값보다 큰 조건(`price > MAX(price)`)과 동일**하게 평가됩니다.
+- 💡 **심화 학습** (서브쿼리 공집합 반환 시 ALL의 특성):
   - 서브쿼리의 결과가 0건(공집합)일 때, `col > ALL (공집합)` 조건은 수학적 진공 참(Vacuous Truth) 원리에 의해 항상 `TRUE`로 평가됩니다.
   - 만약 특정 하위 카테고리(예: `category_id = 11`)를 대상으로 `WHERE price > ALL (SELECT price FROM products WHERE category_id = 11)`을 실행한다면, 11번 카테고리의 최고가(14,900원)보다 비싼 상품들(15,700원, 16,500원 등 총 6건)만 선별되어 출력됩니다.
 
@@ -343,7 +343,7 @@ ORDER BY c.customer_id ASC;
 ### **💡 해설**
 - **`NOT EXISTS`의 부정 존재 검증**:
   - 메인 쿼리 `customers c`의 각 고객 행에 대해 서브쿼리가 실행되며, `orders` 테이블에서 해당 고객의 주문(`o.customer_id = c.customer_id`)이 **단 한 건도 존재하지 않는 경우에만** `TRUE`를 반환합니다.
-- **`NOT IN`과의 결정적 차이 (NULL 안전성)**:
+- **`NOT IN`과의 결정적 차이** (NULL 안전성):
   - `WHERE c.customer_id NOT IN (SELECT customer_id FROM orders)`로도 작성할 수 있지만, 만약 주문 테이블의 `customer_id`에 `NULL`이 존재한다면 `NOT IN` 조건 전체가 `UNKNOWN(FALSE)`로 평가되어 결과가 0건이 반환되는 치명적인 논리 버그가 발생할 수 있습니다.
   - 반면 `NOT EXISTS`는 서브쿼리 내부 조인 조건(`o.customer_id = c.customer_id`)의 행 존재 여부만을 평가하므로, `NULL` 값의 존재와 무관하게 항상 안전하고 신뢰할 수 있는 결과를 보장합니다.
 
@@ -393,7 +393,7 @@ ORDER BY r.review_id ASC;
 ### **💡 해설**
 - **상관 서브쿼리(Correlated Subquery)의 동작 원리**:
   - 메인 쿼리 `reviews r`의 각 행(개별 리뷰)을 검사할 때마다, 해당 리뷰를 작성한 고객 ID(`r.customer_id`)를 서브쿼리로 전달합니다.
-  - 서브쿼리는 **동일한 고객(`r2.customer_id = r.customer_id`)이 남긴 모든 리뷰의 평균 별점(`AVG(r2.rating)`)**을 동적으로 계산하여 반환합니다.
+  - 서브쿼리는 동일한 고객(`r2.customer_id = r.customer_id`)이 남긴 **모든 리뷰의 평균 별점**(`AVG(r2.rating)`)을 동적으로 계산하여 반환합니다.
   - 메인 쿼리는 현재 리뷰의 별점(`r.rating`)이 고객 본인의 평균 별점보다 큰(`>`) 행만을 결과 집합에 포함시킵니다.
   - 예시: 6번 고객(이종석)은 총 6개의 리뷰(별점: 4, 3, 3, 4, 4, 5)를 남겨 평균이 약 3.83점입니다. 따라서 3.83점보다 높은 4점과 5점 리뷰 4건(리뷰 번호 11, 17, 18, 19)이 출력됩니다.
 
@@ -425,7 +425,7 @@ WHERE (o.customer_id, oi.product_id) IN (
 ORDER BY o.order_id ASC, oi.product_id ASC;
 ```
 
-### **쿼리 실행 결과 예시 (상위 10건)**
+### **쿼리 실행 결과 예시** (상위 10건)
 
 | ORDER_ID | CUSTOMER_ID | PRODUCT_ID | ORDER_DATE |
 | :---: | :---: | :---: | :---: |
@@ -443,14 +443,14 @@ ORDER BY o.order_id ASC, oi.product_id ASC;
 *(※ 실제 주문한 고객이 해당 주문 상품에 대해 리뷰까지 남긴 (고객, 상품) 일치 조합에 해당하는 총 25건의 주문 상세 행이 조회됩니다.)*
 
 ### **💡 해설**
-- **다중 열(Multi-Column) 서브쿼리와 튜플 비교 (Pairwise)**:
-  - `WHERE (o.customer_id, oi.product_id) IN (...)`와 같이 두 개 이상의 컬럼을 괄호로 묶어 **하나의 쌍(Pair / Tuple)**으로 서브쿼리 결과 집합과 비교합니다.
+- **다중 열(Multi-Column) 서브쿼리와 튜플 비교** (Pairwise):
+  - `WHERE (o.customer_id, oi.product_id) IN (...)`와 같이 두 개 이상의 컬럼을 괄호로 묶어 **하나의 쌍**(Pair / Tuple)으로 서브쿼리 결과 집합과 비교합니다.
   - 서브쿼리는 `reviews` 테이블에서 실제 리뷰가 작성된 고객과 상품 번호의 쌍 `(r.customer_id, r.product_id)` 목록을 반환합니다.
 - ⚠️ **비쌍 비교(Non-pairwise) 안티패턴 주의**:
   - 만약 컬럼을 분리하여 `WHERE o.customer_id IN (SELECT customer_id FROM reviews) AND oi.product_id IN (SELECT product_id FROM reviews)`로 작성하면:
     - 고객 A가 상품 X에만 리뷰를 남기고, 고객 B가 상품 Y에만 리뷰를 남겼더라도,
     - 고객 A가 상품 Y를 주문한 내역까지 조건에 부합하게 되는 심각한 논리적 오류가 발생합니다.
-  - 따라서 관계의 복합 키 매칭에는 반드시 **다중 열 튜플 비교(`IN (SELECT col1, col2 ...)`)**를 사용해야 합니다.
+  - 따라서 관계의 복합 키 매칭에는 반드시 **다중 열 튜플 비교**(`IN (SELECT col1, col2 ...)`)를 사용해야 합니다.
 
 </details>
 
@@ -516,4 +516,4 @@ WHERE ROWNUM <= 3;
 | **Q7** | **NOT EXISTS 연산자** | `NOT EXISTS` , `SELECT 1` | 일치 행이 전혀 없는 경우만 참 $\to$ NULL에 영향받지 않는 안전한 부정 조건 |
 | **Q8** | **상관 서브쿼리 집계** | `>` , `AVG()` 상관 조건 | 각 행의 기준 컬럼(`customer_id`)별 평균값을 동적으로 산출하여 대소 비교 |
 | **Q9** | **다중 열 서브쿼리** | `(col1, col2) IN` | 두 컬럼의 조합을 튜플 단위로 비교(Pairwise)하여 데이터 무결성 보장 |
-| **Q10** | **인라인 뷰 (Top-N)** | `ROWNUM <= 3` , `ORDER BY` | 인라인 뷰에서 집계·정렬을 완료한 후 바깥 쿼리에서 순번 제한으로 정확한 상위 N건 추출 |
+| **Q10** | **인라인 뷰** (Top-N) | `ROWNUM <= 3` , `ORDER BY` | 인라인 뷰에서 집계·정렬을 완료한 후 바깥 쿼리에서 순번 제한으로 정확한 상위 N건 추출 |

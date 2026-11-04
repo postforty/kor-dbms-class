@@ -5,7 +5,7 @@
 ---
 
 ## 1. 표준 스키마 & 계정 (`KOREA_MALL`)
-* **표준 명칭**: **`KOREA_MALL`** (대문자 원칙, 이전 명칭 `MANTORMALL`, `MENTORMALL` 사용 금지)
+* **표준 명칭**: `KOREA_MALL` (대문자 원칙, 이전 명칭 `MANTORMALL`, `MENTORMALL` 사용 금지)
 * **USER = SCHEMA**: Oracle 특성에 따라 일반 사용자 생성으로 실습 스키마가 구성됩니다.
   ```sql
   -- SYSTEM 관리자 세션에서 실행
@@ -33,7 +33,7 @@
 ---
 
 ## 4. 에이전트 준수 체크리스트
-- [ ] 스키마/계정명이 오직 **`KOREA_MALL`**로 통일되어 있는가?
+- [ ] 스키마/계정명이 오직 `KOREA_MALL`로 통일되어 있는가?
 - [ ] 실습 쿼리는 활성 스키마 기반으로 **접두사 없이 테이블명(예: `FROM customers`)을 간결하게 작성**했는가?
 - [ ] DDL/DML 실습을 일반 세션(`KOREA_MALL`) 편집기에서 실행하도록 명시했는가?
 - [ ] 내부 파일 참조 링크는 GitHub 웹 뷰 호환을 위해 **상대 경로**(예: `[filename.md](./filename.md)`)를 준수하는가?
