@@ -2179,12 +2179,101 @@ ORDER BY order_month;
 
 ## # 실습 예제 35 : 상품 가격 기준으로 순위 부여하기
 
-오라클의 대표적인 윈도우 순위 함수(Window Ranking Functions)인 `RANK()`, `DENSE_RANK()`, `ROW_NUMBER()`를 사용하여 카테고리(`category_id`)별로 파티션을 분할한 뒤, 상품 가격(`price`)이 높은 순(`ORDER BY price DESC`)으로 3가지 방식의 순위를 동시에 산출하고 정렬(`ORDER BY category_id, price DESC`)하여 출력합니다.
+오라클의 대표적인 윈도우 순위 함수(Window Ranking Functions)인 `RANK()`, `DENSE_RANK()`, `ROW_NUMBER()`의 개념과 차이점을 단계별 실습을 통해 학습합니다. 먼저 각 함수의 기본 동작 원리를 개별 예제로 확인한 뒤, `PARTITION BY`를 결합하여 카테고리별로 순위를 동시에 비교하는 종합 실습까지 진행합니다.
 
-### 35.1 실습 쿼리
+### 35.1 기본 실습 1: `RANK()`로 순위 부여하기 (공동 순위 건너뜀)
+
+동일한 가격의 상품이 있을 때 공동 순위를 부여하고, 그 다음 순위는 동점자 수만큼 **건너뛰는(Skip)** 전통적인 스포츠 순위 방식입니다.
 
 ```sql
--- 카테고리별 상품 가격 기준으로 RANK, DENSE_RANK, ROW_NUMBER 비교
+-- 도서 카테고리(category_id = 9) 상품을 가격이 높은 순으로 RANK() 순위 부여
+SELECT
+    product_id,
+    name AS product_name,
+    price,
+    RANK() OVER (ORDER BY price DESC) AS rank_순위
+FROM products
+WHERE category_id = 9
+ORDER BY price DESC;
+```
+
+#### 쿼리 실행 결과 예시
+
+| PRODUCT_ID | PRODUCT_NAME | PRICE | RANK_순위 | 순위 부여 특징 |
+| :---: | :--- | :---: | :---: | :--- |
+| 57 | 노르웨이의 숲 | 15700 | **1** | 공동 1위 |
+| 58 | 니코마코스 윤리학 | 15700 | **1** | 공동 1위 |
+| 60 | 밤의 여행자들 | 4700 | **3** | 🔥 **2위를 건너뛰고 3위 부여!** (1 ➔ 1 ➔ 3) |
+| 59 | 성공하는 사람들의 7가지 습관 | 4100 | 4 | 4위 |
+
+*(※ 가격이 15,700원으로 동일한 두 상품에 공동 1위가 부여되고, 2위는 건너뛴 채 다음 상품에 3위가 부여됩니다.)*
+
+---
+
+### 35.2 기본 실습 2: `DENSE_RANK()`로 순위 부여하기 (공동 순위 연속 부여)
+
+동점자가 발생해도 다음 순위를 건너뛰지 않고 **빈틈없이(Dense) 연속된 번호**를 부여하는 방식입니다. 할인 등급이나 성적 티어 산정에 주로 사용됩니다.
+
+```sql
+-- 도서 카테고리(category_id = 9) 상품을 가격이 높은 순으로 DENSE_RANK() 순위 부여
+SELECT
+    product_id,
+    name AS product_name,
+    price,
+    DENSE_RANK() OVER (ORDER BY price DESC) AS dense_rank_순위
+FROM products
+WHERE category_id = 9
+ORDER BY price DESC;
+```
+
+#### 쿼리 실행 결과 예시
+
+| PRODUCT_ID | PRODUCT_NAME | PRICE | DENSE_RANK_순위 | 순위 부여 특징 |
+| :---: | :--- | :---: | :---: | :--- |
+| 57 | 노르웨이의 숲 | 15700 | **1** | 공동 1위 |
+| 58 | 니코마코스 윤리학 | 15700 | **1** | 공동 1위 |
+| 60 | 밤의 여행자들 | 4700 | **2** | 🔥 **순위를 건너뛰지 않고 2위 부여!** (1 ➔ 1 ➔ 2) |
+| 59 | 성공하는 사람들의 7가지 습관 | 4100 | 3 | 3위 |
+
+*(※ 공동 1위가 존재함에도 다음 순위가 2위로 이어지므로, 순위 번호 사이에 빈틈(Gap)이 생기지 않습니다.)*
+
+---
+
+### 35.3 기본 실습 3: `ROW_NUMBER()`로 순위 부여하기 (고유 일련번호)
+
+동점자가 있더라도 정렬 기준에 따라 무조건 **고유한 행 번호(1, 2, 3...)**를 부여합니다. 웹 애플리케이션의 페이징(Paging)이나 특정 그룹의 단독 1위를 뽑을 때 필수적으로 활용됩니다.
+
+```sql
+-- 도서 카테고리(category_id = 9) 상품을 가격이 높은 순으로 ROW_NUMBER() 순번 부여
+SELECT
+    product_id,
+    name AS product_name,
+    price,
+    ROW_NUMBER() OVER (ORDER BY price DESC) AS row_num
+FROM products
+WHERE category_id = 9
+ORDER BY price DESC;
+```
+
+#### 쿼리 실행 결과 예시
+
+| PRODUCT_ID | PRODUCT_NAME | PRICE | ROW_NUM | 순위 부여 특징 |
+| :---: | :--- | :---: | :---: | :--- |
+| 57 | 노르웨이의 숲 | 15700 | **1** | 고유 번호 1번 |
+| 58 | 니코마코스 윤리학 | 15700 | **2** | 🔥 **동일 가격이어도 고유 번호 2번 부여!** (1 ➔ 2 ➔ 3) |
+| 60 | 밤의 여행자들 | 4700 | 3 | 고유 번호 3번 |
+| 59 | 성공하는 사람들의 7가지 습관 | 4100 | 4 | 고유 번호 4번 |
+
+*(※ 가격이 동일하더라도 공동 순위 없이 무조건 1부터 1씩 증가하는 일련번호가 고유하게 부여됩니다.)*
+
+---
+
+### 35.4 종합 실습: `PARTITION BY`로 카테고리별 그룹 분할 및 3대 순위 함수 비교
+
+`PARTITION BY`를 추가하여 데이터를 카테고리(`category_id`)별로 독립 분할한 뒤, 세 가지 순위 함수를 하나의 쿼리에서 동시에 비교하여 동점자 처리 차이를 최종 확인합니다.
+
+```sql
+-- 카테고리별 상품 가격 기준으로 RANK, DENSE_RANK, ROW_NUMBER 동시 비교
 SELECT
     category_id,                -- 카테고리 ID
     name AS product_name,       -- 상품명
@@ -2205,7 +2294,7 @@ FROM products
 ORDER BY category_id, price DESC;
 ```
 
-### 35.2 쿼리 실행 결과 예시
+#### 쿼리 실행 결과 예시
 
 | CATEGORY_ID | PRODUCT_NAME | PRICE | RANK_순위 | DENSE_RANK_순위 | ROW_NUMBER_순위 | 동점자 처리 특징 비교 |
 | :---: | :--- | :---: | :---: | :---: | :---: | :--- |
