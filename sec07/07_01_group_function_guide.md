@@ -1,4 +1,4 @@
-# Oracle SQL 그룹 함수(Group Functions) 및 데이터 집계 실습 가이드
+﻿# Oracle SQL 그룹 함수(Group Functions) 및 데이터 집계 실습 가이드
 
 오라클 SQL에서 **그룹 함수**(Group Function 또는 집계 함수 Aggregate Function)는 여러 행(Row)의 데이터를 입력받아 합계, 평균, 최댓값, 최솟값, 건수 등의 **단 하나의 요약 결과 행을 반환**하는 핵심 함수입니다.
 
@@ -2003,11 +2003,11 @@ FROM (
 )
 UNPIVOT (
     리뷰건수 FOR rating_label IN (
-        "1점" AS '1점',
-        "2점" AS '2점',
-        "3점" AS '3점',
-        "4점" AS '4점',
-        "5점" AS '5점'
+        "1점",
+        "2점",
+        "3점",
+        "4점",
+        "5점"
     )
 )
 ORDER BY product_id, rating_label;
