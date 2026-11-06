@@ -36,11 +36,11 @@ GRANT UNLIMITED TABLESPACE TO KOREA_MALL;
 
 ### 0.2 실습 사용자 전환 및 세션 확인
 
-1. **DBeaver 새 연결(Connection) 생성**:
+1. **DBeaver 새 연결**(Connection) **생성**:
    - **Database**: `FREEPDB1`
    - **Username**: `KOREA_MALL`
    - **Password**: `1234`
-2. 생성한 `KOREA_MALL` 연결에서 새 SQL 편집기(`Ctrl + ]`)를 열고 아래 쿼리를 실행해 **현재 사용자가 `KOREA_MALL`로 전환되었는지 확인**합니다.
+2. 생성한 `KOREA_MALL` 연결에서 새 SQL 편집기(`Ctrl + ]`)를 열고 아래 쿼리를 실행해 **현재 사용자가** `KOREA_MALL`**로 전환되었는지 확인**합니다.
 
 ```sql
 -- 현재 접속 계정 확인 (결과: KOREA_MALL)

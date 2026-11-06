@@ -24,7 +24,7 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ① `name, price, products, name`**
+### **정답: ①** `name, price, products, name`
 
 ### **💡 해설**
 - **빈칸 완성 결과**:
@@ -41,8 +41,8 @@
 - *(참고: `ORDER BY` 절에서 `ASC`(오름차순)는 기본값이므로 생략할 수 있지만, 문제 구문에 `ASC;`가 이미 주어져 있으므로 기준 컬럼명 `name`만 올바르게 입력하면 됩니다.)*
 
 ### **❌ 오답 분석**
-- **② `product_id, price, orders, product_id`**: 대상 테이블이 `orders`(주문)로 잘못 지정되었으며, 정렬 기준도 상품명이 아닌 `product_id`로 지정되어 문제 요구사항과 맞지 않습니다.
-- **③ `name, product_id, products, price`**: 대상 테이블은 `products`가 맞지만, `ORDER BY`의 정렬 기준 컬럼 자리에 상품명(`name`)이 아닌 단가(`price`)가 입력되어 상품명 오름차순 정렬이 되지 않습니다.
+- **②** `product_id, price, orders, product_id`: 대상 테이블이 `orders`(주문)로 잘못 지정되었으며, 정렬 기준도 상품명이 아닌 `product_id`로 지정되어 문제 요구사항과 맞지 않습니다.
+- **③** `name, product_id, products, price`: 대상 테이블은 `products`가 맞지만, `ORDER BY`의 정렬 기준 컬럼 자리에 상품명(`name`)이 아닌 단가(`price`)가 입력되어 상품명 오름차순 정렬이 되지 않습니다.
 
 </details>
 
@@ -60,10 +60,10 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ② `SELECT * FROM reviews ORDER BY rating DESC, created_at ASC;`**
+### **정답: ②** `SELECT * FROM reviews ORDER BY rating DESC, created_at ASC;`
 
 ### **💡 해설**
-- **다중 정렬(Multi-Column Sort) 기준 설정**:
+- **다중 정렬**(Multi-Column Sort) **기준 설정**:
   1. **1차 정렬 기준** (별점이 높은 순): 큰 점수부터 작은 점수 순이므로 내림차순인 `rating DESC`를 적용합니다.
   2. **2차 정렬 기준** (별점이 같을 때 작성일이 오래된 순): 과거 날짜부터 최신 날짜 순(오래된 순)이므로 날짜 값이 작은 것부터 큰 것으로 나열하는 오름차순인 `created_at ASC`를 적용합니다.
 - `ORDER BY` 절에서 컬럼들을 쉼표(`,`)로 구분하여 나열하면 왼쪽부터 우선순위가 부여되므로 `ORDER BY rating DESC, created_at ASC;`가 완벽하게 일치합니다.
@@ -75,9 +75,9 @@
 | `DESC` | 큰 값 → 작은 값 | 최신 날짜 → 과거 날짜 | **최신순**, 최근 등록순 |
 
 ### **❌ 오답 분석**
-- **① `ORDER BY rating, created_at;`**: `rating`과 `created_at` 모두 `ASC`가 기본 적용되어 별점이 낮은 순(1점→5점)으로 정렬되므로 요구사항(별점이 높은 순)과 반대로 동작합니다.
-- **③ `ORDER BY created_at DESC, rating;`**: 1차 정렬 기준이 작성일(`created_at DESC`)이 되어 작성일자가 최신인 순서로 먼저 정렬되므로 요구사항의 우선순위와 완전히 어긋납니다.
-- **④ `ORDER BY rating DESC, created_at DESC;`**: 1차 기준은 맞지만, 2차 기준이 `created_at DESC`로 지정되어 별점이 같을 때 '최신순'으로 정렬됩니다. 문제의 조건은 '오래된 순'이므로 오답입니다.
+- **①** `ORDER BY rating, created_at;`: `rating`과 `created_at` 모두 `ASC`가 기본 적용되어 별점이 낮은 순(1점→5점)으로 정렬되므로 요구사항(별점이 높은 순)과 반대로 동작합니다.
+- **③** `ORDER BY created_at DESC, rating;`: 1차 정렬 기준이 작성일(`created_at DESC`)이 되어 작성일자가 최신인 순서로 먼저 정렬되므로 요구사항의 우선순위와 완전히 어긋납니다.
+- **④** `ORDER BY rating DESC, created_at DESC;`: 1차 기준은 맞지만, 2차 기준이 `created_at DESC`로 지정되어 별점이 같을 때 '최신순'으로 정렬됩니다. 문제의 조건은 '오래된 순'이므로 오답입니다.
 
 </details>
 
@@ -95,18 +95,18 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ③ `SELECT DISTINCT category_id FROM products;`**
+### **정답: ③** `SELECT DISTINCT category_id FROM products;`
 
 ### **💡 해설**
-- **`DISTINCT` 키워드의 역할**:
-  - `SELECT` 절 맨 앞(컬럼명 앞)에 위치하여 결과 집합에서 **중복된 행을 제거하고 고유한(Unique) 값만 1행씩 추출**합니다.
+- `DISTINCT` **키워드의 역할**:
+  - `SELECT` 절 맨 앞(컬럼명 앞)에 위치하여 결과 집합에서 **중복된 행을 제거하고 고유한**(Unique) **값만 1행씩 추출**합니다.
   - 여러 상품이 동일한 카테고리 번호(`category_id`)를 가지고 있더라도, `SELECT DISTINCT category_id FROM products;`를 실행하면 중복이 제거된 고유 카테고리 번호 목록만 깔끔하게 반환됩니다.
 - 이는 SQL-92 표준 문법이며 모든 관계형 데이터베이스(Oracle, MySQL, PostgreSQL, SQL Server 등)에서 공통적으로 지원하는 표준 방식입니다.
 
 ### **❌ 오답 분석**
-- **① `SELECT category_id FROM products;`**: 중복 제거 키워드가 없어 등록된 모든 상품 행의 `category_id`가 반복 출력됩니다.
-- **② `SELECT category_id FROM products GROUP BY category_id;`**: 결과적으로 중복이 합쳐진 카테고리 목록이 나오긴 하지만, `GROUP BY`는 본래 집계 함수(`COUNT`, `SUM` 등)와 함께 통계 그룹을 생성하기 위한 절입니다. 단순히 고유 목록을 추출하기 위한 목적에는 `DISTINCT`가 문법적 의도에 부합합니다.
-- **④ `SELECT UNIQUE category_id FROM products;`: Oracle Database는 과거 하위 호환성을 위해 `UNIQUE`를 `DISTINCT`의 동의어로 허용하긴 하지만, 이는 ANSI SQL 표준 문법이 아닌 Oracle 고유의 레거시(구형) 비표준 문법입니다. 실무 및 자격시험에서는 표준 키워드인 `DISTINCT`**가 정답입니다.
+- **①** `SELECT category_id FROM products;`: 중복 제거 키워드가 없어 등록된 모든 상품 행의 `category_id`가 반복 출력됩니다.
+- **②** `SELECT category_id FROM products GROUP BY category_id;`: 결과적으로 중복이 합쳐진 카테고리 목록이 나오긴 하지만, `GROUP BY`는 본래 집계 함수(`COUNT`, `SUM` 등)와 함께 통계 그룹을 생성하기 위한 절입니다. 단순히 고유 목록을 추출하기 위한 목적에는 `DISTINCT`가 문법적 의도에 부합합니다.
+- **④** `SELECT UNIQUE category_id FROM products;`: Oracle Database는 과거 하위 호환성을 위해 `UNIQUE`를 `DISTINCT`의 동의어로 허용하긴 하지만, 이는 ANSI SQL 표준 문법이 아닌 Oracle 고유의 레거시(구형) 비표준 문법입니다. 실무 및 자격시험에서는 표준 키워드인 `DISTINCT`가 정답입니다.
 
 </details>
 
@@ -142,7 +142,7 @@ SELECT * FROM reviews
 WHERE ROWNUM <= 5
 ORDER BY created_at DESC;
 ```
-- SQL 문장의 내부 실행 순서는 **`FROM` → `WHERE` → `SELECT` → `ORDER BY`** 순서입니다.
+- SQL 문장의 내부 실행 순서는 `FROM` → `WHERE` → `SELECT` → `ORDER BY` 순서입니다.
 - 따라서 `WHERE ROWNUM <= 5`가 `ORDER BY created_at DESC`보다 **먼저 실행**됩니다.
 - 결과적으로 전체 테이블에서 **무작위 5개 행을 먼저 뽑아온 뒤, 그 5개 데이터만을 가지고 최신순으로 정렬**하게 됩니다. 전체 데이터 중 가장 최근에 작성된 5개가 보장되지 않는 대표적인 안티패턴입니다.
 
@@ -166,10 +166,10 @@ ORDER BY created_at DESC;
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ② `OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY`**
+### **정답: ②** `OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY`
 
 ### **💡 해설**
-- `OFFSET n ROWS`: 결과 집합의 앞부분에서 **건너뛸(Skip) 행의 개수**를 지정합니다.
+- `OFFSET n ROWS`: 결과 집합의 앞부분에서 **건너뛸**(Skip) **행의 개수**를 지정합니다.
   - "**6번째 행부터**" 출력하려면 앞선 **1번째부터 5번째까지 총 5개 행을 건너뛰어야** 하므로 `OFFSET 5 ROWS`가 되어야 합니다. (`OFFSET 6 ROWS`는 6개를 건너뛰어 7번째부터 출력됨)
 - `FETCH NEXT n ROWS ONLY`: 건너뛴 위치에서부터 **가져올 행의 개수**를 지정합니다.
   - 5개 행을 가져와야 하므로 `FETCH NEXT 5 ROWS ONLY` (또는 `FETCH FIRST 5 ROWS ONLY`)를 사용합니다.
@@ -191,8 +191,8 @@ ORDER BY created_at DESC;
   5. 결국 모든 행이 버려져 **결과가 0건**(Empty Result) 반환되는 치명적인 논리 오류가 발생합니다.
 
 ### **❌ 오답 분석**
-- **① `OFFSET 6 ROWS ...`**: 6개 행을 건너뛰므로 6번째가 아닌 **7번째 행부터** 출력됩니다.
-- **③, ④ `ROWNUM BETWEEN 6 AND 10`, `WHERE ROWNUM >= 6 ...`**: 인라인 뷰 없이 메인 쿼리의 `WHERE` 절에 직접 1보다 큰 시작 값을 지정하면 아무런 행도 조회되지 않습니다(0건 반환).
+- **①** `OFFSET 6 ROWS ...`: 6개 행을 건너뛰므로 6번째가 아닌 **7번째 행부터** 출력됩니다.
+- **③, ④** `ROWNUM BETWEEN 6 AND 10`, `WHERE ROWNUM >= 6 ...`: 인라인 뷰 없이 메인 쿼리의 `WHERE` 절에 직접 1보다 큰 시작 값을 지정하면 아무런 행도 조회되지 않습니다(0건 반환).
 
 </details>
 

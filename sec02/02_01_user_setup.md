@@ -29,7 +29,7 @@ GRANT UNLIMITED TABLESPACE TO KOREA_MALL;
 
 ### 2.1 `GRANT`는 어떤 SQL 분류에 해당할까? (DCL: 데이터 제어어)
 
-**네, 맞습니다! `GRANT`는 DCL(Data Control Language, 데이터 제어어)입니다.**
+**네, 맞습니다!** `GRANT`**는 DCL**(Data Control Language, 데이터 제어어)**입니다.**
 
 SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 
@@ -37,7 +37,7 @@ SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 | :--- | :--- | :--- | :--- |
 | **DDL** | Data Definition Language (데이터 정의어) | `CREATE`, `ALTER`, `DROP`, `TRUNCATE` | 테이블, 사용자 등 데이터베이스 객체의 구조를 생성·수정·삭제 |
 | **DML** | Data Manipulation Language (데이터 조작어) | `SELECT`, `INSERT`, `UPDATE`, `DELETE` | 테이블 내부의 데이터를 조회하고 추가·수정·삭제 |
-| **DCL** | **Data Control Language** (데이터 제어어) | **`GRANT`, `REVOKE`** | 데이터베이스 접근 및 객체 사용에 관한 **권한을 부여하거나 회수** |
+| **DCL** | **Data Control Language** (데이터 제어어) | `GRANT`, `REVOKE` | 데이터베이스 접근 및 객체 사용에 관한 **권한을 부여하거나 회수** |
 | **TCL** | Transaction Control Language (트랜잭션 제어어) | `COMMIT`, `ROLLBACK`, `SAVEPOINT` | DML 작업 결과를 실제 DB에 영구 반영하거나 취소 |
 
 - `GRANT`: 사용자에게 특정 권한이나 롤(Role)을 **부여**합니다.
@@ -72,7 +72,7 @@ SQL 문법은 목적에 따라 크게 4가지로 분류됩니다:
 
 ### 2.3 `UNLIMITED TABLESPACE`를 주지 않으면 데이터를 저장하지 못할까?
 
-**네, 맞습니다.** 이 권한(또는 테이블스페이스에 대한 Quota 할당)을 주지 않으면 **테이블에 데이터를 `INSERT`하여 저장할 때 오류가 발생하면서 저장이 되지 않습니다.**
+**네, 맞습니다.** 이 권한(또는 테이블스페이스에 대한 Quota 할당)을 주지 않으면 **테이블에 데이터를** `INSERT`**하여 저장할 때 오류가 발생하면서 저장이 되지 않습니다.**
 
 #### 1) 발생하는 오류
 ```sql
@@ -83,8 +83,8 @@ INSERT INTO customer_ex_ddl (customer_id, name) VALUES (1, '홍길동');
 
 #### 2) 왜 `CREATE TABLE` 할 때는 에러가 안 나고 `INSERT` 할 때 날까?
 오라클(11g R2 이후)은 **지연 세그먼트 생성**(Deferred Segment Creation) 기능이 기본으로 켜져 있습니다:
-- **`CREATE TABLE` 시점**: 실제 디스크 공간을 할당하지 않고 테이블의 정의(메타데이터)만 등록하므로 에러 없이 성공합니다.
-- **첫 `INSERT` 시점**: 실제 데이터를 디스크에 쓰기 위해 테이블스페이스(기본: USERS)에 저장 공간(세그먼트) 할당을 요청하며, 이때 사용자에게 할당된 용량(Quota)이 없음을 감지하고 `ORA-01950` 오류를 냅니다.
+- `CREATE TABLE` **시점**: 실제 디스크 공간을 할당하지 않고 테이블의 정의(메타데이터)만 등록하므로 에러 없이 성공합니다.
+- **첫** `INSERT` **시점**: 실제 데이터를 디스크에 쓰기 위해 테이블스페이스(기본: USERS)에 저장 공간(세그먼트) 할당을 요청하며, 이때 사용자에게 할당된 용량(Quota)이 없음을 감지하고 `ORA-01950` 오류를 냅니다.
 
 #### 3) 테이블스페이스 권한 부여 방식 비교 (실습 vs 실무)
 
@@ -119,7 +119,7 @@ DROP USER KOREA_MALL CASCADE;
 사용자 생성이 완료되면 DBeaver에서 새 연결을 생성하여 실습용 세션으로 전환합니다.
 
 ### 4.1 DBeaver 새 연결(Connection) 생성
-1. DBeaver 상단 메뉴: **데이터베이스(Database) → 새 데이터베이스 연결**(New Database Connection)
+1. DBeaver 상단 메뉴: **데이터베이스**(Database) **→ 새 데이터베이스 연결**(New Database Connection)
 2. **Oracle** 선택 후 **다음**(Next)
 3. 연결 정보 입력:
    - **Host**: `localhost`
@@ -139,7 +139,7 @@ SELECT USER FROM DUAL;
 ```
 
 > ⚠️ **중요**:
-> 실습 중 테이블 생성(`CREATE TABLE`), 데이터 삽입(`INSERT`) 등 모든 DDL/DML 실습은 반드시 **`KOREA_MALL` 세션의 SQL 편집기**에서 수행해야 최고 관리자(`SYSTEM`) 스키마를 오염시키지 않습니다.
+> 실습 중 테이블 생성(`CREATE TABLE`), 데이터 삽입(`INSERT`) 등 모든 DDL/DML 실습은 반드시 `KOREA_MALL` **세션의 SQL 편집기**에서 수행해야 최고 관리자(`SYSTEM`) 스키마를 오염시키지 않습니다.
 
 ---
 
