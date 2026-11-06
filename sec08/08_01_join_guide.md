@@ -485,13 +485,15 @@ WHERE c.customer_id = o.customer_id     -- 조인 조건 1: 고객 <-> 주문
 오라클 전통 문법에서는 외부 조인을 표현할 때 `(+)` **기호**를 사용합니다.
 
 ```mermaid
-flowchart LR
-    subgraph InnerJoin ["내부 조인 (INNER JOIN)"]
-        A1["상품 (products)"] --- C1["교집합 행만 출력<br>(리뷰가 있는 상품만)"] --- B1["리뷰 (reviews)"]
+flowchart TD
+    subgraph INNER ["내부 조인 (INNER JOIN)"]
+        direction LR
+        I1["상품 (products)"] <-->|교집합 매칭 (리뷰 있는 상품만)| I2["리뷰 (reviews)"]
     end
 
-    subgraph OuterJoin ["외부 조인 (LEFT OUTER JOIN)"]
-        A2["기준: 상품 (products)<br>전체 25건 보존"] --> C2["일치 행: 평점 출력<br>불일치 행: NULL 출력"] <-- B2["리뷰 (reviews)<br>(+) 기호로 부족한 곳 보충"]
+    subgraph OUTER ["외부 조인 (LEFT OUTER JOIN)"]
+        direction LR
+        O1["기준: 상품 (products) - 전체 25건 보존"] -->|불일치 행은 NULL로 보충| O2["참조: 리뷰 (reviews)"]
     end
 ```
 
@@ -809,12 +811,92 @@ JOIN categories c2
 
 > 💡 **이전 단계의 한계와 이번 실습의 목적**:
 > - 1단계 조인으로는 중분류의 부모(대분류)만 알 수 있고, 소분류의 조부모(최상위 대분류)까지 한 줄에 파악할 수 없었습니다.
-> - 동일한 `categories` 테이블을 3번 연속 결합(`c1`, `c2`, `c3`)하는 **3단 SELF LEFT OUTER JOIN**을 적용하여 최상위 대분류까지 모두 보존하고, 시각적 트리 들여쓰기(`CASE WHEN`)와 경로 기반 정렬키를 구현합니다.
+> - 동일한 `categories` 테이블을 3번 연속 결합(`c1`, `c2`, `c3`)하는 **3단 SELF LEFT OUTER JOIN**을 적용하여 최상위 대분류까지 모두 보존하고, 시각적 트리 들여쓰기(`CASE WHEN`)와 경로 기반 정렬키(`LPAD`)를 단계별로 완성합니다.
 
-### 12.1 실습 쿼리
+### 12.1 단계별 쿼리 빌드업
+
+한 번에 복잡한 쿼리를 작성하기보다, 조인 뼈대 구성부터 들여쓰기 함수 및 패딩 함수(`LPAD`)를 차례대로 덧붙여가며 완성해 봅니다.
+
+---
+
+#### [1단계] 3단 SELF LEFT JOIN으로 계층 데이터 펼치기
+- 동일한 `categories` 테이블을 3번 참조(`c1`: 현재 카테고리, `c2`: 부모 카테고리, `c3`: 조부모/최상위 카테고리)합니다.
+- 대분류는 부모가 없으므로 일반 `JOIN` 대신 `LEFT OUTER JOIN`을 사용해야 11개 카테고리가 모두 누락 없이 조회됩니다.
 
 ```sql
--- 상하위 카테고리를 3단계 트리 구조로 표현
+-- [1단계] 3단 LEFT OUTER JOIN으로 현재-상위-최상위 데이터 한눈에 펼치기
+SELECT
+    c1.category_id,
+    c1.category_name   AS "현재카테고리",
+    c2.category_name   AS "상위카테고리",
+    c3.category_name   AS "최상위카테고리"
+FROM categories c1
+LEFT OUTER JOIN categories c2 ON c1.parent_id = c2.category_id
+LEFT OUTER JOIN categories c3 ON c2.parent_id = c3.category_id;
+```
+
+---
+
+#### [2단계] `CASE WHEN`으로 시각적 트리 들여쓰기 추가하기
+- `parent_id`의 존재 여부(부모가 있는지, 부모의 부모가 있는지)에 따라 계층 깊이를 판단하고 문자열 결합 연산자(`||`)로 들여쓰기(`ㄴ `, `   ㄴ `)를 부여합니다.
+
+```sql
+-- [2단계] CASE WHEN으로 레벨별 들여쓰기(Indent) 입히기
+SELECT
+    c1.category_id,
+    CASE
+        WHEN c1.parent_id IS NULL THEN c1.category_name
+        WHEN c2.parent_id IS NULL THEN 'ㄴ ' || c1.category_name
+        ELSE '   ㄴ ' || c1.category_name
+    END AS "트리_카테고리명",
+    c2.category_name AS "상위카테고리",
+    c3.category_name AS "최상위카테고리"
+FROM categories c1
+LEFT OUTER JOIN categories c2 ON c1.parent_id = c2.category_id
+LEFT OUTER JOIN categories c3 ON c2.parent_id = c3.category_id;
+```
+
+> ⚠️ **문제점 발견**: 들여쓰기는 적용되었으나, `ORDER BY`가 없어 부모 아래에 자식 카테고리가 곧바로 정렬되지 않고 행이 뒤섞여 출력됩니다.
+
+---
+
+#### [3단계] `LPAD` 함수와 계층 정렬키(Path Key) 생성 원리 이해하기
+
+> 💡 **왜 계층 정렬키가 필요하며, 왜 `LPAD`를 사용해야 할까요?**
+> 1. **정렬 순서 문제**: 단순히 `ORDER BY category_id`를 적용하면 `1(도서), 2(문구), 3(굿즈), 4(소설)...` 순으로 정렬되어, '도서' 바로 아래에 자식 카테고리 '소설'이 위치하지 못합니다.
+> 2. **문자열 정렬 오류 방지**(`LPAD`):
+>    - 부모부터 자식까지의 ID를 문자열로 합쳐 정렬키를 만들 때, `1`, `4`, `10` 등의 숫자를 단순히 연결하면 사전식 문자열 정렬 특성상 `'11010'`이 `'147'`보다 앞서 정렬되는 치명적인 순서 왜곡이 발생합니다.
+>    - 이를 방지하기 위해 `LPAD(ID, 2, '0')`를 사용해 숫자를 항상 **2자리 고정 포맷**(`01`, `04`, `10`)으로 맞춥니다.
+>    - `LPAD('4', 2, '0')` ➔ `'04'`, `LPAD('10', 2, '0')` ➔ `'10'`처럼 자릿수가 일정해지면 문자열 정렬 결과가 실제 계층 순서와 정확히 일치하게 됩니다.
+
+```sql
+-- [3단계 실습] LPAD 패딩과 NVL을 활용한 계층 경로 코드 조립
+SELECT
+    c1.category_id,
+    c1.category_name,
+    -- 1) 최상위 코드 (없으면 상위, 상위도 없으면 현재 ID를 2자리 패딩)
+    LPAD(NVL(c3.category_id, NVL(c2.category_id, c1.category_id)), 2, '0') AS "최상위코드",
+    -- 2) 상위 코드 (상위가 없으면 현재 ID를 2자리 패딩)
+    LPAD(NVL(c2.category_id, c1.category_id), 2, '0') AS "상위코드",
+    -- 3) 현재 코드 (2자리 패딩)
+    LPAD(c1.category_id, 2, '0') AS "현재코드",
+    -- 4) 결합 정렬키: 최상위(2) + 상위(2) + 현재(2) = 총 6자리 경로 코드
+    LPAD(NVL(c3.category_id, NVL(c2.category_id, c1.category_id)), 2, '0') ||
+    LPAD(NVL(c2.category_id, c1.category_id), 2, '0') ||
+    LPAD(c1.category_id, 2, '0') AS "정렬키"
+FROM categories c1
+LEFT OUTER JOIN categories c2 ON c1.parent_id = c2.category_id
+LEFT OUTER JOIN categories c3 ON c2.parent_id = c3.category_id;
+```
+
+---
+
+#### [4단계] 최종 완성 쿼리
+
+앞서 작성한 3단계 조인, 2단계 들여쓰기(`CASE WHEN`), 3단계 계층 정렬키(`LPAD`)를 하나로 통합하고 `ORDER BY "정렬키"`를 적용합니다.
+
+```sql
+-- [4단계] 최종 완성: 3단계 계층 트리 구조 표현 및 정렬
 SELECT
     c1.category_id,
     CASE
@@ -839,23 +921,24 @@ ORDER BY "정렬키";
 
 | CATEGORY_ID | 트리_카테고리명 | PARENT_ID | 상위카테고리 | 최상위카테고리 | 정렬키 |
 | :---: | :--- | :---: | :--- | :--- | :---: |
-| 1 | **도서** | *(null)* | *(null)* | *(null)* | 010101 |
-| 4 | **- 소설** | 1 | 도서 | *(null)* | 010104 |
-| 7 | **-- 한국소설** | 4 | 소설 | 도서 | 010407 |
-| 8 | **-- 외국소설** | 4 | 소설 | 도서 | 010408 |
-| 5 | **- 자기계발** | 1 | 도서 | *(null)* | 010105 |
-| 9 | **-- 시간관리** | 5 | 자기계발 | 도서 | 010509 |
-| 6 | **- 인문/사회** | 1 | 도서 | *(null)* | 010106 |
-| 10 | **-- 철학** | 6 | 인문/사회 | 도서 | 010610 |
-| 11 | **-- 심리학** | 6 | 인문/사회 | 도서 | 010611 |
-| 2 | **문구** | *(null)* | *(null)* | *(null)* | 020202 |
-| 3 | **굿즈** | *(null)* | *(null)* | *(null)* | 030303 |
+| 1 | 도서 | *(null)* | *(null)* | *(null)* | 010101 |
+| 4 | ㄴ 소설 | 1 | 도서 | *(null)* | 010104 |
+| 7 | &nbsp;&nbsp;&nbsp;ㄴ 한국소설 | 4 | 소설 | 도서 | 010407 |
+| 8 | &nbsp;&nbsp;&nbsp;ㄴ 외국소설 | 4 | 소설 | 도서 | 010408 |
+| 5 | ㄴ 자기계발 | 1 | 도서 | *(null)* | 010105 |
+| 9 | &nbsp;&nbsp;&nbsp;ㄴ 시간관리 | 5 | 자기계발 | 도서 | 010509 |
+| 6 | ㄴ 인문/사회 | 1 | 도서 | *(null)* | 010106 |
+| 10 | &nbsp;&nbsp;&nbsp;ㄴ 철학 | 6 | 인문/사회 | 도서 | 010610 |
+| 11 | &nbsp;&nbsp;&nbsp;ㄴ 심리학 | 6 | 인문/사회 | 도서 | 010611 |
+| 2 | 문구 | *(null)* | *(null)* | *(null)* | 020202 |
+| 3 | 굿즈 | *(null)* | *(null)* | *(null)* | 030303 |
 
 *(계층 트리 순서에 맞춰 총 11개 행이 완벽하게 정렬되어 조회됩니다)*
 
 > 🎯 **핵심 배움 포인트**:
-> - **LEFT OUTER JOIN**을 사용했기 때문에 부모가 없는 대분류(도서, 문구, 굿즈)도 누락되지 않고 11개 행 전체가 보존됩니다.
-> - `CASE WHEN`으로 레벨별 하이픈(`-`, `--`)을 붙이고, 계층 정렬키를 만들어 정렬함으로써 완벽한 트리 뷰를 구현할 수 있습니다.
+> 1. **LEFT OUTER JOIN의 필수성**: 부모가 없는 대분류(도서, 문구, 굿즈)도 누락되지 않고 11개 행 전체가 안전하게 보존됩니다.
+> 2. **동적 들여쓰기 구현**(`CASE WHEN`): 카테고리의 부모 존재 여부에 따라 깊이를 판단하여 트리 시각 효과를 연출합니다.
+> 3. **계층 정렬키 조립**(`LPAD`, `NVL`): 고정 자릿수 패딩(`LPAD`)과 결합 연산자(`||`)로 전체 계층 경로(대-중-소)를 만들어 부모 밑에 직속 자식들이 바로 이어지도록 정렬합니다.
 
 ---
 
