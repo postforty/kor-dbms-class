@@ -18,16 +18,16 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ① `SELECT name, email FROM customers WHERE is_active = 'Y';`**
+### **정답: ①** `SELECT name, email FROM customers WHERE is_active = 'Y';`
 
 ### **💡 해설**
 - SQL `SELECT` 문의 표준 구문 순서는 `SELECT 컬럼목록 FROM 테이블명 WHERE 조건절;` 입니다.
 - 문자열 리터럴 값 `'Y'`는 작은따옴표(`' '`)로 올바르게 감싸져 있으며, 콤마(`,`)를 통한 다중 컬럼 지정도 정확합니다.
 
 ### **❌ 오답 분석**
-- **② `SELECT * customers WHERE ...`: 테이블을 지정하는 필수 키워드인 `FROM`이 누락**되었습니다. (`SELECT * FROM customers ...`)
-- **③ `SELECT ... FROM customers IS_ACTIVE = 'Y';`: 조건식을 시작하는 `WHERE` 키워드가 누락**되었습니다.
-- **④ `FROM customers SELECT ...`**: SQL 문장은 반드시 `SELECT` 절로 시작해야 합니다. `FROM` 절을 맨 앞에 배치할 수 없습니다.
+- **②** `SELECT * customers WHERE ...`: **테이블을 지정하는 필수 키워드인** `FROM`**이 누락**되었습니다. (`SELECT * FROM customers ...`)
+- **③** `SELECT ... FROM customers IS_ACTIVE = 'Y';`: **조건식을 시작하는** `WHERE` **키워드가 누락**되었습니다.
+- **④** `FROM customers SELECT ...`: SQL 문장은 반드시 `SELECT` 절로 시작해야 합니다. `FROM` 절을 맨 앞에 배치할 수 없습니다.
 
 </details>
 
@@ -45,10 +45,10 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ③ `SELECT * FROM orders WHERE order_date BETWEEN TO_DATE('2024-01-01', 'YYYY-MM-DD') AND TO_DATE('2024-01-31', 'YYYY-MM-DD');`**
+### **정답: ③** `SELECT * FROM orders WHERE order_date BETWEEN TO_DATE('2024-01-01', 'YYYY-MM-DD') AND TO_DATE('2024-01-31', 'YYYY-MM-DD');`
 
 ### **💡 해설**
-- Oracle Database에서 날짜 데이터를 비교할 때는 데이터베이스 세션 설정(`NLS_DATE_FORMAT`)에 따른 오류를 방지하기 위해 **`TO_DATE('문자열', '날짜포맷')` 함수를 명시적으로 사용**하는 것이 표준 원칙입니다.
+- Oracle Database에서 날짜 데이터를 비교할 때는 데이터베이스 세션 설정(`NLS_DATE_FORMAT`)에 따른 오류를 방지하기 위해 `TO_DATE('문자열', '날짜포맷')` **함수를 명시적으로 사용**하는 것이 표준 원칙입니다.
 - 포맷 문자열 `'YYYY-MM-DD'`를 명시하여 2024년 1월 1일부터 1월 31일까지의 범위를 안전하고 정확하게 지정했습니다.
 
 ### **❌ 오답 분석**
@@ -62,7 +62,7 @@
 
 ## Q3. 특정 목록 필터링 (IN 연산자)
 
-**다음 SQL의 실행 결과로 'Gold', 'Platinum' 등급의 고객만 조회하려 한다. 올바른 SQL문은?**  
+<b>다음 SQL의 실행 결과로 'Gold', 'Platinum' 등급의 고객만 조회하려 한다. 올바른 SQL문은?</b>  
 *(고객(customers) 테이블에 grade 컬럼이 존재한다고 가정하고 문제를 풀이합니다.)*
 
 ① `SELECT * FROM customers WHERE grade = 'Gold' AND 'Platinum';`  
@@ -73,10 +73,10 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ② `SELECT * FROM customers WHERE grade IN ('Gold', 'Platinum');`**
+### **정답: ②** `SELECT * FROM customers WHERE grade IN ('Gold', 'Platinum');`
 
 ### **💡 해설**
-- 하나의 컬럼에 대해 여러 후보 값 중 하나라도 만족하는 데이터를 조회할 때는 **`IN ('값1', '값2', ...)` 연산자**를 사용합니다.
+- 하나의 컬럼에 대해 여러 후보 값 중 하나라도 만족하는 데이터를 조회할 때는 `IN ('값1', '값2', ...)` **연산자**를 사용합니다.
 - `WHERE grade IN ('Gold', 'Platinum')`은 `WHERE grade = 'Gold' OR grade = 'Platinum'`과 논리적으로 완벽히 동일하며 가독성이 훨씬 우수합니다.
 
 ### **❌ 오답 분석**
@@ -100,16 +100,16 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ② `SELECT * FROM customers WHERE email IS NULL;`**
+### **정답: ②** `SELECT * FROM customers WHERE email IS NULL;`
 
 ### **💡 해설**
 - SQL에서 `NULL`은 값이 존재하지 않거나 알 수 없는(Unknown) 상태를 나타냅니다.
-- `NULL`은 데이터 값이 아니므로 일반 등호(`=`)나 부등호(`!=`)로 비교할 수 없으며, **반드시 `IS NULL` 연산자**를 사용해야만 정상적으로 필터링됩니다.
+- `NULL`은 데이터 값이 아니므로 일반 등호(`=`)나 부등호(`!=`)로 비교할 수 없으며, **반드시** `IS NULL` **연산자**를 사용해야만 정상적으로 필터링됩니다.
 
 ### **❌ 오답 분석**
-- **① `WHERE email = NULL`**: 문법 오류는 발생하지 않지만 평가 결과가 항상 `UNKNOWN(거짓)`이 되어 아무런 데이터도 조회되지 않습니다.
-- **③ `WHERE email != NULL`**: 마찬가지로 항상 `UNKNOWN`으로 평가되어 원하는 결과를 얻을 수 없습니다.
-- **④ `WHERE email NOT NULL`**: `NOT NULL`은 DDL에서 테이블 컬럼을 생성할 때 부여하는 제약조건 키워드이며, WHERE 절에서는 `IS NOT NULL`로 작성해야 합니다.
+- **①** `WHERE email = NULL`: 문법 오류는 발생하지 않지만 평가 결과가 항상 `UNKNOWN(거짓)`이 되어 아무런 데이터도 조회되지 않습니다.
+- **③** `WHERE email != NULL`: 마찬가지로 항상 `UNKNOWN`으로 평가되어 원하는 결과를 얻을 수 없습니다.
+- **④** `WHERE email NOT NULL`: `NOT NULL`은 DDL에서 테이블 컬럼을 생성할 때 부여하는 제약조건 키워드이며, WHERE 절에서는 `IS NOT NULL`로 작성해야 합니다.
 
 </details>
 
@@ -117,7 +117,7 @@
 
 ## Q5. 컬럼 별칭(ALIAS)과 한글 식별자
 
-**고객 테이블에서 name 컬럼을 "고객명"으로 출력하려 한다. 올바른 SELECT 문은?**
+<b>고객 테이블에서 name 컬럼을 "고객명"으로 출력하려 한다. 올바른 SELECT 문은?</b>
 
 ① `SELECT name 고객명 FROM customers;`  
 ② `SELECT name AS "고객명" FROM customers;`  
@@ -127,7 +127,7 @@
 <details>
 <summary>🔍 정답 및 해설 확인</summary>
 
-### **정답: ② `SELECT name AS "고객명" FROM customers;`**
+### **정답: ②** `SELECT name AS "고객명" FROM customers;`
 
 ### **💡 해설**
 - 컬럼에 별칭을 부여할 때는 `컬럼명 AS "별칭"` 형식을 사용합니다.
@@ -162,7 +162,7 @@ B. SELECT * FROM reviews WHERE rating = 1 OR rating = 5;
 ### **정답: ③ 두 쿼리는 실행 결과가 동일하다.**
 
 ### **💡 해설**
-- **`IN` 연산자는 다중 `OR` 조건의 문법적 설탕**(Syntactic Sugar)입니다.
+- `IN` **연산자는 다중** `OR` **조건의 문법적 설탕**(Syntactic Sugar)입니다.
 - `WHERE rating IN (1, 5)`는 내부적으로 `WHERE rating = 1 OR rating = 5`와 동일하게 해석되므로 **두 쿼리의 결과 셋은 100% 동일**합니다.
 
 ### **❌ 오답 분석**

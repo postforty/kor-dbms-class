@@ -33,11 +33,11 @@ CREATE TABLE customer_ex_ddl (
 사용자에게 `RESOURCE` 롤이 부여되어 있거나 `CREATE TABLE` 권한이 있는 상태에서도 이 오류가 발생하는 이유는 크게 **4가지**입니다.
 
 ### ① 기본 테이블스페이스가 `SYSTEM`으로 설정된 경우 (가장 흔함)
-- `CREATE USER` 시점에 `DEFAULT TABLESPACE`를 명시하지 않으면 PDB 환경 기본값에 따라 **`SYSTEM` 테이블스페이스**가 기본 저장소로 지정될 수 있습니다.
-- 오라클은 데이터베이스 무결성과 보안을 위해 **일반 사용자가 `SYSTEM` 테이블스페이스에 테이블을 만드는 것을 원천 차단**(ORA-01031 발생)합니다.
+- `CREATE USER` 시점에 `DEFAULT TABLESPACE`를 명시하지 않으면 PDB 환경 기본값에 따라 `SYSTEM` **테이블스페이스**가 기본 저장소로 지정될 수 있습니다.
+- 오라클은 데이터베이스 무결성과 보안을 위해 **일반 사용자가** `SYSTEM` **테이블스페이스에 테이블을 만드는 것을 원천 차단**(ORA-01031 발생)합니다.
 
 ### ② 테이블스페이스 Quota(할당량) 또는 `UNLIMITED TABLESPACE` 누락
-- 오라클 12c 이후(19c, 21c, 23ai)부터는 `RESOURCE` 롤에 **`UNLIMITED TABLESPACE` 권한이 자동으로 포함되지 않습니다.**
+- 오라클 12c 이후(19c, 21c, 23ai)부터는 `RESOURCE` 롤에 `UNLIMITED TABLESPACE` **권한이 자동으로 포함되지 않습니다.**
 - 사용자가 저장 공간(테이블스페이스)에 대한 사용 권한(Quota)이 없으면 `CREATE TABLE` 시점에 즉시 `ORA-01031`이 발생합니다.
 
 ### ③ DBeaver의 현재 활성 스키마(`CURRENT_SCHEMA`) 불일치
@@ -98,7 +98,7 @@ GRANT CREATE TABLE TO KOREA_MALL;
 
 `KOREA_MALL` 편집기에서 스키마명(`KOREA_MALL.`)과 저장될 테이블스페이스(`TABLESPACE USERS`)를 명시하여 실행합니다.
 
-> ⚠️ **주의**: 다른 쿼리와 섞이지 않도록 **반드시 해당 쿼리 블록만 마우스로 드래그(선택)한 후 `Ctrl + Enter`**를 누릅니다.
+> ⚠️ **주의**: 다른 쿼리와 섞이지 않도록 **반드시 해당 쿼리 블록만 마우스로 드래그**(선택)**한 후** `Ctrl + Enter`**를 누릅니다.**
 
 ```sql
 CREATE TABLE KOREA_MALL.customer_ex_ddl (
@@ -115,12 +115,12 @@ CREATE TABLE KOREA_MALL.customer_ex_ddl (
 
 ### [해결 3] DBeaver 환경 점검 및 세션 새로고침
 
-1. **활성 스키마(`CURRENT_SCHEMA`) 확인 및 전환**:
+1. **활성 스키마**(`CURRENT_SCHEMA`) **확인 및 전환**:
    - **쿼리로 즉시 전환**: SQL 편집기 창에서 아래 쿼리를 실행(`Ctrl + Enter`)합니다.
      ```sql
      ALTER SESSION SET CURRENT_SCHEMA = KOREA_MALL;
      ```
-   - **UI에서 전환**: DBeaver 상단 툴바의 활성 스키마 드롭다운에서 **`<FREEPDB1> KOREA_MALL`을 선택하거나, 좌측 내비게이터의 `KOREA_MALL` 스키마 우클릭 → `Set as default`** (단축키: `Ctrl + Shift + A`)를 클릭합니다.
+   - **UI에서 전환**: DBeaver 상단 툴바의 활성 스키마 드롭다운에서 `<FREEPDB1> KOREA_MALL`을 선택하거나, 좌측 내비게이터의 `KOREA_MALL` 스키마 우클릭 → `Set as default` (단축키: `Ctrl + Shift + A`)를 클릭합니다.
 2. **연결 새로고침**:
    - 좌측 [데이터베이스 내비게이터]에서 `KOREA_MALL` 연결 우클릭 → **연결 해제**(Disconnect) 후 다시 **연결**(Connect)하여 새로 부여된 시스템 권한이 세션에 온전히 반영되도록 합니다.
 3. **생성 확인**:
