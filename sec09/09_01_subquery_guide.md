@@ -16,7 +16,7 @@
 
 모든 SQL 실습은 관리자(`SYSTEM`) 계정이 아닌 **실습용 일반 사용자**(`KOREA_MALL`) 세션의 SQL 편집기에서 진행합니다.
 
-````sql
+```sql
 -- 현재 접속 계정 확인 (결과가 KOREA_MALL 이어야 함)
 SELECT USER FROM DUAL;
 ```
@@ -57,7 +57,7 @@ flowchart TD
 
 ### 1.1 실습 쿼리
 
-````sql
+```sql
 -- 평균보다 높은 가격의 상품 조회
 SELECT name, price
 FROM products
@@ -121,7 +121,7 @@ WHERE price > (
 
 ### 2.1 실습 쿼리
 
-````sql
+```sql
 -- 가장 최근에 주문한 고객의 이름 조회
 SELECT name
 FROM customers
@@ -176,7 +176,7 @@ WHERE customer_id = (
 >    - 만약 가장 최근 일자에 서로 다른 두 명 이상의 고객이 주문했다면, 2단계 서브쿼리가 2건 이상의 `customer_id`를 반환하게 됩니다.
 >    - 이때 메인 쿼리가 단일행 연산자 `=`를 사용하고 있으면 `ORA-01427: single-row subquery returns more than one row` 에러가 발생합니다.
 >    - 따라서 동시 주문이 발생할 수 있는 실제 실무 환경에서는 단일행 연산자 대신 `IN`을 사용하거나, 날짜 컬럼뿐만 아니라 고유 주문 번호(`MAX(order_id)`) 또는 초 단위 타임스탬프(`created_at`)를 기준으로 단일성을 보장하는 것이 권장됩니다:
->      ````sql
+> ```sql
 >      -- [실무 권장] 동일 일자 복수 고객 주문 시에도 안전한 IN 연산자 패턴
 >      SELECT name
 >      FROM customers
@@ -188,7 +188,7 @@ WHERE customer_id = (
 >              FROM orders
 >          )
 >      );
->      ```
+> ```
 
 ---
 
@@ -198,7 +198,7 @@ WHERE customer_id = (
 
 ### 3-1.1 실습 쿼리 (오류 발생 예시)
 
-````sql
+```sql
 -- 잘못된 예제 : 리뷰가 등록된 상품의 이름 조회
 SELECT name
 FROM products
@@ -250,7 +250,7 @@ SQL 오류: ORA-01427: 단일 행 하위 질의에 2개 이상의 행이 리턴�
 
 ### 3-2.1 실습 쿼리
 
-````sql
+```sql
 -- 리뷰가 등록된 상품의 이름 조회 (올바른 예제)
 SELECT name
 FROM products
@@ -301,7 +301,7 @@ WHERE product_id IN (
 
 ### 4.1 실습 쿼리
 
-````sql
+```sql
 -- 고객 ID 4번이 남긴 리뷰 점수 중 하나라도 초과하는 리뷰 조회
 SELECT review_id, customer_id, rating
 FROM reviews
@@ -369,7 +369,7 @@ WHERE rating > ANY (
 
 ### 5.1 실습 쿼리
 
-````sql
+```sql
 -- 고객 4번이 남긴 모든 리뷰 점수보다 높은 리뷰 조회
 SELECT review_id, customer_id, rating
 FROM reviews
@@ -414,7 +414,7 @@ WHERE rating > ALL (
 
 ### 6.1 실습 쿼리
 
-````sql
+```sql
 -- 리뷰가 하나라도 존재하는 상품의 이름 조회
 SELECT p.product_id, p.name
 FROM products p
@@ -472,7 +472,7 @@ WHERE EXISTS (
 
 ### 7.1 실습 쿼리
 
-````sql
+```sql
 -- 리뷰가 전혀 없는 상품 조회
 SELECT p.product_id, p.name
 FROM products p
@@ -516,7 +516,7 @@ WHERE NOT EXISTS (
 
 ### 8.1 실습 쿼리
 
-````sql
+```sql
 -- 다중 열 서브쿼리 예제 : 리뷰가 등록된 (고객, 상품) 조합의 주문 조회
 SELECT o.order_id, o.customer_id, oi.product_id, o.order_date
 FROM orders o
@@ -552,7 +552,7 @@ WHERE (o.customer_id, oi.product_id) IN (
 > 
 > 2. **개별 컬럼 비교와의 결정적 차이** (Pairwise Comparison):
 >    - 만약 이 쿼리를 개별적으로 분리하여 다음과 같이 작성한다면:
->      ````sql
+>      ```sql
 >      -- [잘못된 논리 예시] 비쌍비교 (Non-pairwise)
 >      WHERE o.customer_id IN (SELECT customer_id FROM reviews)
 >        AND oi.product_id IN (SELECT product_id FROM reviews)
@@ -575,7 +575,7 @@ WHERE (o.customer_id, oi.product_id) IN (
 
 ### 9.1 실습 쿼리
 
-````sql
+```sql
 -- 고객별 총 주문 금액 상위 3명 조회
 SELECT *
 FROM (
@@ -617,7 +617,7 @@ WHERE ROWNUM <= 3;
 
 ### 11.1 실습 쿼리
 
-````sql
+```sql
 -- 상품별 평균 별점 상위 5개 상품 조회
 SELECT *
 FROM (
@@ -669,7 +669,7 @@ WITH 절을 사용하지 않으면 다음과 같이 서브쿼리를 반복 작�
 
 ### 12-1.1 실습 쿼리
 
-````sql
+```sql
 -- 리뷰가 등록된 상품의 평균 평점 조회 (중복된 서브쿼리)
 SELECT p.product_id, p.name,
     (SELECT AVG(r.rating)
@@ -715,7 +715,7 @@ WHERE p.product_id IN (SELECT product_id FROM reviews);
 
 ### 12-2.1 실습 쿼리
 
-````sql
+```sql
 -- WITH 절을 활용한 서브쿼리 리팩터링 예제
 WITH avg_review AS (
     SELECT product_id, AVG(rating) AS avg_rating
@@ -756,7 +756,7 @@ JOIN avg_review a
 > 
 > 3. **다중 CTE 정의 문법**:
 >    - 2개 이상의 CTE 블록이 필요할 때는 `WITH` 키워드를 한 번만 쓰고 쉼표(`,`)로 연결합니다:
->      ````sql
+>      ```sql
 >      -- [참고] 다중 CTE 선언 문법 패턴
 >      WITH table_a AS (
 >          SELECT ... FROM ...
@@ -784,7 +784,7 @@ products 테이블의 상품-카테고리 정보를 product_categories라는 관
 
 ### 13.1 실습 쿼리
 
-``sql
+```sql
 -- 실습용 테이블 생성
 CREATE TABLE product_categories (
     product_id  NUMBER,
@@ -798,19 +798,19 @@ FROM products;
 
 -- 결과 확인용 조회
 SELECT * FROM product_categories;
-`
+```
 
 ### 13.2 쿼리 실행 결과 예시
 
 1) **CREATE TABLE 실행 결과**:
-``	ext
+```text
 Table PRODUCT_CATEGORIES이(가) 생성되었습니다.
-`
+```
 
 2) **INSERT 실행 결과**:
-``	ext
+```text
 25개 행 이(가) 삽입되었습니다.
-`
+```
 
 3) **결과 확인 조회**:
 
@@ -836,9 +836,9 @@ Table PRODUCT_CATEGORIES이(가) 생성되었습니다.
 > 
 > 3. 💡 **실습 테이블 정리** (Clean-up):
 >    - 실습 완료 후 불필요한 테이블은 깔끔하게 삭제합니다:
->      ``sql
+>      ```sql
 >      DROP TABLE product_categories;
->      `
+>      ```
 
 ---
 
@@ -848,7 +848,7 @@ Table PRODUCT_CATEGORIES이(가) 생성되었습니다.
 
 ### 14.1 실습 쿼리
 
-``sql
+```sql
 -- 최근 6개월간 주문이 없는 고객을 비활성화
 UPDATE customers c
 SET is_active = 'N'
@@ -860,14 +860,14 @@ WHERE c.customer_id NOT IN (
 
 -- 결과 확인용 조회
 SELECT customer_id, name, is_active FROM customers c;
-`
+```
 
 ### 14.2 쿼리 실행 결과 예시
 
 1) **UPDATE 실행 결과**:
-``	ext
+```text
 1개 행 이(가) 업데이트되었습니다.
-`
+```
 
 *(※ 현재 KOREA_MALL 샘플 데이터에서 주문 이력이 전혀 없는 3번 고객(이보영)의 is_active가 'N'으로 수정됩니다.)*
 
@@ -897,9 +897,9 @@ SELECT customer_id, name, is_active FROM customers c;
 > 
 > 3. 💡 **트랜잭션 롤백 안내**:
 >    - 실습 후 원래의 정상 데이터 상태를 유지하기 위해 변경 사항을 롤백합니다:
->      ``sql
+>      ```sql
 >      ROLLBACK;
->      `
+>      ```
 
 ---
 
@@ -909,7 +909,7 @@ SELECT customer_id, name, is_active FROM customers c;
 
 ### 15.1 실습 쿼리
 
-````sql
+```sql
 -- 존재하지 않는 상품에 대한 리뷰 삭제
 DELETE FROM reviews r
 WHERE NOT EXISTS (
@@ -946,7 +946,7 @@ SELECT * FROM reviews r;
 > 
 > 3. 💡 **트랜잭션 롤백 안내**:
 >    - DML 실습 후 데이터베이스 상태를 안전하게 유지하기 위해 변경 사항을 롤백합니다:
->      ````sql
+>      ```sql
 >      -- DML 변경 작업 롤백
 >      ROLLBACK;
 >      ```
@@ -959,4 +959,3 @@ SELECT * FROM reviews r;
 본 실습 가이드에서 배운 단일행 서브쿼리, 상관 서브쿼리, 다중행 서브쿼리(IN, ANY, ALL, EXISTS), 인라인 뷰, WITH 절, DML 활용 패턴을 직접 문제를 풀며 점검해 보세요.
 
 👉 [**09_02_subquery_exercise.md 로 이동하여 연습문제 풀기**](./09_02_subquery_exercise.md)
-```

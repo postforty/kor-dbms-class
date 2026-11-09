@@ -251,7 +251,8 @@ ORDER BY product_id ASC;
 - `> ALL` **비교 메커니즘**:
   - `> ALL`은 서브쿼리가 반환하는 **모든 값보다 커야**(AND) 참이 되므로, 실질적으로 서브쿼리 결과의 최댓값보다 큰 조건(`price > MAX(price)`)과 동일하게 평가됩니다.
 - 💡 **심화 학습** (서브쿼리 공집합 반환 시 ALL의 특성):
-  - 서브쿼리의 결과가 0건(공집합)일 때, `col > ALL (공집합)` 조건은 수학적 진공 참(Vacuous Truth) 원리에 의해 항상 `TRUE`로 평가됩니다.
+  - 서브쿼리의 결과가 0건(공집합)일 때, `ALL` 자리에 `TRUE`가 대입되는 것이 아니라 <b>`price > ALL (공집합)`이라는 비교식(술어) 전체가 `TRUE`</b>로 평가됩니다. (공허한 참, Vacuous Truth 원리)
+  - 따라서 조건을 위반하는 반례가 없으므로 `price IS NOT NULL`인 모든 상품이 필터링을 통과하여 반환됩니다.
   - 만약 특정 하위 카테고리(예: `category_id = 11`)를 대상으로 `WHERE price > ALL (SELECT price FROM products WHERE category_id = 11)`을 실행한다면, 11번 카테고리의 최고가(14,900원)보다 비싼 상품들(15,700원, 16,500원 등 총 6건)만 선별되어 출력됩니다.
 
 </details>
@@ -444,13 +445,17 @@ ORDER BY o.order_id ASC, oi.product_id ASC;
 
 ### **💡 해설**
 - **다중 열**(Multi-Column) **서브쿼리와 튜플 비교** (Pairwise):
+  - <b>핵심 원리: 컬럼명이 아닌 나열된 순서대로 1:1 매칭되어 하나의 묶음(AND)으로 결합·평가</b>됩니다.
+    - 1번째 열: `o.customer_id = r.customer_id`
+    - 2번째 열: `oi.product_id = r.product_id`
+    - 두 조건이 <b>동시에 일치(AND)</b>하는 행이 서브쿼리에 존재할 때 `TRUE`가 됩니다.
   - `WHERE (o.customer_id, oi.product_id) IN (...)`와 같이 두 개 이상의 컬럼을 괄호로 묶어 **하나의 쌍**(Pair / Tuple)으로 서브쿼리 결과 집합과 비교합니다.
   - 서브쿼리는 `reviews` 테이블에서 실제 리뷰가 작성된 고객과 상품 번호의 쌍 `(r.customer_id, r.product_id)` 목록을 반환합니다.
 - ⚠️ **비쌍 비교**(Non-pairwise) **안티패턴 주의**:
   - 만약 컬럼을 분리하여 `WHERE o.customer_id IN (SELECT customer_id FROM reviews) AND oi.product_id IN (SELECT product_id FROM reviews)`로 작성하면:
     - 고객 A가 상품 X에만 리뷰를 남기고, 고객 B가 상품 Y에만 리뷰를 남겼더라도,
-    - 고객 A가 상품 Y를 주문한 내역까지 조건에 부합하게 되는 심각한 논리적 오류가 발생합니다.
-  - 따라서 관계의 복합 키 매칭에는 반드시 **다중 열 튜플 비교**(`IN (SELECT col1, col2 ...)`)를 사용해야 합니다.
+    - 고객 A가 상품 Y를 주문한 내역까지 조건에 부합하게 되는 심각한 논리적 오류(조합의 왜곡)가 발생합니다.
+  - 따라서 관계의 복합 키 매칭에는 반드시 **다중 열 튜플 비교**(`IN (SELECT col1, col2 ...)`)를 사용하여 <b>순서대로 묶인 AND 조건</b>으로 정확히 검증해야 합니다.
 
 </details>
 
