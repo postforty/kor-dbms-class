@@ -38,18 +38,18 @@ Oracle AI Database 26ai와 DBeaver를 활용한 관계형 데이터베이스(RDB
 
 전체 강의 일정과 세부 계획은 [curriculum.md](./curriculum.md)에서 확인할 수 있습니다.
 
-| 차수 | 주제 | 실습 자료 링크 |
-| :---: | :--- | :--- |
-| **01** | 환경 구축 및 개론 | [DBeaver 가이드](./dbeaver_guide.md) |
-| **02** | 데이터정의어 (DDL) | [계정 설정](./sec02/02_01_user_setup.md) · [DDL 가이드](./sec02/02_02_ddl_guide.md) · [DDL 실습](./sec02/02_03_ddl_mission.md) · [트러블슈팅](./sec02/02_04_troubleshooting_ora_01031.md) |
-| **03** | 데이터 조회 (SELECT) | [조회 가이드](./sec03/03_01_select_guide.md) · [조회 실습](./sec03/03_02_select_exercise.md) · [더미 데이터](./sec03/dummy_data.sql) |
-| **04** | 데이터 조작어 (DML) | [DML 가이드](./sec04/04_01_dml_guide.md) · [DML 실습](./sec04/04_02_dml_exercise.md) |
-| **05** | 정렬 및 결과 제한 | [정렬 가이드](./sec05/05_01_order_by_guide.md) · [정렬 실습](./sec05/05_02_order_by_exercise.md) |
-| **06** | 제어문 및 단일행함수 | [함수 가이드](./sec06/06_01_function_guide.md) · [함수 실습](./sec06/06_02_function_exercise.md) |
-| **07** | 그룹함수 및 집계 | [그룹함수 가이드](./sec07/07_01_group_function_guide.md) · [그룹함수 실습](./sec07/07_02_group_function_exercise.md) |
-| **08** | 다중 테이블 (JOIN) | [조인 가이드](./sec08/08_01_join_guide.md) · [조인 실습](./sec08/08_02_join_exercise.md) |
-| **09** | 서브쿼리 (Subquery) | [서브쿼리 가이드](./sec09/09_01_subquery_guide.md) · [서브쿼리 실습](./sec09/09_02_subquery_exercise.md) |
-| **10** | 고급 활용 (INDEX/VIEW) | [고급 객체 가이드](./sec10/10_01_advanced_objects_guide.md) · [고급 객체 연습문제](./sec10/10_02_advanced_objects_exercise.md) · [트랜잭션 실습](./sec10/10_03_transaction_practice.md) · [트랜잭션 연습문제](./sec10/10_04_transaction_exercise.md) |
+| 차수 | 주제 | 핵심 학습 내용 | 실습 자료 링크 |
+| :---: | :--- | :--- | :--- |
+| **01** | 환경 구축 및 개론 | RDBMS 기초, Oracle AI Database 26ai, DBeaver 설정 | [DBeaver 가이드](./dbeaver_guide.md) |
+| **02** | 데이터정의어 (DDL) | `CREATE`, `ALTER`, `DROP`, 기본키/외래키 제약조건 | [계정 설정](./sec02/02_01_user_setup.md) · [DDL 가이드](./sec02/02_02_ddl_guide.md) · [DDL 실습](./sec02/02_03_ddl_mission.md) · [트러블슈팅](./sec02/02_04_troubleshooting_ora_01031.md) |
+| **03** | 데이터 조회 (SELECT) | `SELECT`, `WHERE`, `LIKE`, `IN`, `BETWEEN`, `IS NULL` | [조회 가이드](./sec03/03_01_select_guide.md) · [조회 실습](./sec03/03_02_select_exercise.md) · [더미 데이터](./sec03/dummy_data.sql) |
+| **04** | 데이터 조작어 (DML) | `INSERT`, `UPDATE`, `DELETE`, 데이터 무결성 | [DML 가이드](./sec04/04_01_dml_guide.md) · [DML 실습](./sec04/04_02_dml_exercise.md) |
+| **05** | 정렬 및 결과 제한 | `ORDER BY`, `DISTINCT`, `ROWNUM`, `FETCH FIRST` | [정렬 가이드](./sec05/05_01_order_by_guide.md) · [정렬 실습](./sec05/05_02_order_by_exercise.md) |
+| **06** | 제어문 및 단일행함수 | 문자/숫자/날짜 함수, `NVL`, `NVL2`, `DECODE`, `CASE WHEN` | [함수 가이드](./sec06/06_01_function_guide.md) · [함수 실습](./sec06/06_02_function_exercise.md) |
+| **07** | 그룹함수 및 집계 | `COUNT`, `SUM`, `AVG`, `GROUP BY`, `HAVING` 집계 필터링 | [그룹함수 가이드](./sec07/07_01_group_function_guide.md) · [그룹함수 실습](./sec07/07_02_group_function_exercise.md) |
+| **08** | 다중 테이블 (JOIN) | 오라클 전통 조인, ANSI 표준 조인, 셀프 조인, 집합 연산자 | [조인 가이드](./sec08/08_01_join_guide.md) · [조인 실습](./sec08/08_02_join_exercise.md) |
+| **09** | 서브쿼리 (Subquery) | 중첩 서브쿼리, 스칼라 서브쿼리, 인라인 뷰, 상관/비상관 서브쿼리 | [서브쿼리 가이드](./sec09/09_01_subquery_guide.md) · [서브쿼리 실습](./sec09/09_02_subquery_exercise.md) |
+| **10** | 고급 활용 (INDEX/VIEW/TCL) | 가상 테이블(`VIEW`), 검색 최적화(`INDEX`), 시퀀스, 트랜잭션 제어 | [고급 객체 가이드](./sec10/10_01_advanced_objects_guide.md) · [고급 객체 연습문제](./sec10/10_02_advanced_objects_exercise.md) · [트랜잭션 실습](./sec10/10_03_transaction_practice.md) · [트랜잭션 연습문제](./sec10/10_04_transaction_exercise.md) |
 
 ---
 
