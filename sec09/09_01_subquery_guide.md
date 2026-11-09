@@ -391,6 +391,33 @@ WHERE rating > ALL (
 
 *(※ 4번 고객의 평점 목록 [3, 4] 중 최댓값인 4점을 모두 초과해야 하므로, 5점 만점 리뷰 4건만 출력됩니다.)*
 
+### 5.3 [심화 확장] 고객 이름(name)을 함께 조회하는 JOIN 연계 쿼리
+
+위 기본 쿼리는 고객 ID(`customer_id`) 숫자만 출력되므로 누구의 리뷰인지 즉시 확인하기 어렵습니다. `customers` 테이블을 **조인**(JOIN)하여 고객 이름(`name`)을 함께 조회하면 실무 보고서에 적합한 가독성 높은 결과 집합을 얻을 수 있습니다.
+
+```sql
+-- customers 테이블을 조인하여 고객명을 함께 출력
+SELECT r.review_id, r.customer_id, c.name, r.rating
+FROM reviews r
+JOIN customers c ON r.customer_id = c.customer_id
+WHERE r.rating > ALL (
+    SELECT rating
+    FROM reviews
+    WHERE customer_id = 4
+);
+```
+
+#### 쿼리 실행 결과 예시
+
+| REVIEW_ID | CUSTOMER_ID | NAME | RATING |
+| :---: | :---: | :--- | :---: |
+| 2 | 8 | 남주혁 | 5 |
+| 4 | 8 | 남주혁 | 5 |
+| 14 | 9 | 김태리 | 5 |
+| 19 | 6 | 이종석 | 5 |
+
+*(※ 4번 고객의 모든 평점보다 높은 5점 만점 리뷰를 남긴 고객의 이름이 직관적으로 함께 조회됩니다.)*
+
 > 🎯 **핵심 배움 포인트** (`> ALL` 연산자의 비교 원리와 최대값 비교 동등성):
 > 
 > 1. **서브쿼리 반환값과** `ALL`**의 평가 방식**:
@@ -449,6 +476,36 @@ WHERE EXISTS (
 
 *(※ 전체 25개 상품 중 실제 리뷰가 1건 이상 등록된 17개 상품이 조회됩니다.)*
 
+### 6.3 [비교 실습] JOIN을 활용한 리뷰 상세 확인 및 EXISTS와의 차이점
+
+#### 1) 리뷰 상세 내역까지 함께 확인하기 (INNER JOIN)
+실제로 어떤 리뷰들이 등록되어 있는지 직접 눈으로 확인하려면 `reviews` 테이블과 **조인**(JOIN)하여 리뷰 정보(`rating`, `content`)를 함께 조회합니다.
+
+```sql
+-- 상품 정보와 함께 등록된 리뷰 상세 내역 조회
+SELECT p.product_id, p.name, r.review_id, r.rating, r.content
+FROM products p
+JOIN reviews r ON p.product_id = r.product_id
+ORDER BY p.product_id, r.review_id;
+```
+
+*(※ 하나의 상품에 리뷰가 여러 개 등록되어 있을 수 있으므로 총 23건의 리뷰 행이 상세히 조회됩니다.)*
+
+#### 2) 동일한 결과(17건)를 JOIN으로 작성할 때의 주의점 (DISTINCT)
+리뷰 상세 내용 없이 **리뷰가 존재하는 상품 목록**(17건)만을 중복 없이 추출하려면, 1:N 조인에서 생기는 중복 상품 행을 합치기 위해 `DISTINCT`가 필수적입니다.
+
+```sql
+-- JOIN과 DISTINCT를 사용해 리뷰가 있는 상품만 중복 없이 조회
+SELECT DISTINCT p.product_id, p.name
+FROM products p
+JOIN reviews r ON p.product_id = r.product_id
+ORDER BY p.product_id;
+```
+
+> 💡 `EXISTS` vs `JOIN + DISTINCT` **성능 핵심 비교**:
+> - `JOIN + DISTINCT`: 상품과 리뷰를 모두 조인(23건 생성)한 뒤 정렬/해시 연산으로 중복을 제거하므로 데이터가 많을수록 부하가 큽니다.
+> - `EXISTS`: 메인 테이블의 각 상품에 대해 리뷰가 **단 1건만 발견되면 즉시 탐색을 종료**(Short-Circuit)하므로 대용량 데이터에서 성능이 훨씬 뛰어납니다.
+
 > 🎯 **핵심 배움 포인트** (EXISTS 연산자의 동작 원리와 조기 종료):
 > 
 > 1. `EXISTS`**의 행 단위 검증 및 조기 종료** (Short-Circuit):
@@ -498,6 +555,46 @@ WHERE NOT EXISTS (
 
 *(※ 전체 25개 상품 중 리뷰가 1건도 작성되지 않은 8개 상품이 정확히 추출됩니다.)*
 
+### 7.3 [심화 응용] 스칼라 서브쿼리로 리뷰 개수(0개) 직접 확인하기
+
+`WHERE` 절의 `NOT EXISTS`로 추출된 8개 상품이 실제로 리뷰가 0개인지 직접 눈으로 검증하기 위해, `SELECT` 절에 **스칼라 서브쿼리**(Scalar Subquery)를 결합하여 상품별 리뷰 개수를 함께 출력해 봅니다.
+
+```sql
+-- NOT EXISTS 필터링과 SELECT 절 스칼라 서브쿼리를 결합한 리뷰 개수(0개) 확인
+SELECT p.product_id,
+       p.name,
+       (SELECT COUNT(*)
+        FROM reviews r
+        WHERE r.product_id = p.product_id) AS review_count
+FROM products p
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM reviews r
+    WHERE r.product_id = p.product_id
+)
+ORDER BY p.product_id;
+```
+
+#### 쿼리 실행 결과 예시
+
+| PRODUCT_ID | NAME | REVIEW_COUNT |
+| :---: | :--- | :---: |
+| 4 | 노르웨이의 숲 | 0 |
+| 6 | 1984 | 0 |
+| 8 | 성공하는 사람들의 7가지 습관 | 0 |
+| 12 | 철학의 위안 | 0 |
+| 16 | 밤의 여행자들 | 0 |
+| 18 | 데미안 | 0 |
+| 20 | 하버드 새벽 4시 반 | 0 |
+| 24 | 북마크 세트 | 0 |
+
+> 🎯 **스칼라 서브쿼리 결합의 핵심 효과**:
+> 1. `WHERE` **절 서브쿼리** (`NOT EXISTS`):
+>    - 리뷰가 단 1건도 없는 상품 8건만을 빠르고 안전하게 필터링합니다.
+> 2. `SELECT` **절 스칼라 서브쿼리** (`COUNT(*)`):
+>    - 메인 쿼리의 각 상품(`p.product_id`)에 대해 리뷰 테이블을 독립적으로 카운트하여 정확히 `0`이라는 수치를 컬럼으로 투영합니다.
+>    - 복잡한 `LEFT JOIN`과 `GROUP BY`를 쓰지 않고도 서브쿼리만으로 가독성 높은 결과 보고서를 간결하게 완성할 수 있습니다.
+
 > 🎯 **핵심 배움 포인트** (NOT EXISTS의 장점과 NOT IN 대비 NULL 안전성):
 > 
 > 1. `NOT EXISTS`**의 동작 원리**:
@@ -510,7 +607,7 @@ WHERE NOT EXISTS (
 
 ---
 
-## # 실습 예제 8 : 리뷰가 등록된 (고객, 상품) 조합 찾기
+## # 실습 예제 8 : [다중 열 서브쿼리] 리뷰가 등록된 (고객, 상품) 조합 찾기
 
 `orders`와 `order_items`를 조인해 주문 기준의 `(customer_id, product_id)` 조합을 생성하고, 이 조합이 `reviews` 테이블의 `(customer_id, product_id)` 조합에 포함되는 경우만 다중 열(다중 컬럼) 서브쿼리를 사용하여 조회합니다.
 
@@ -662,16 +759,17 @@ WHERE ROWNUM <= 5;
 
 ---
 
-## # 실습 예제 12-1 : WITH 절을 사용하지 않은 경우
+## # 실습 예제 12-1 : WITH 절을 사용하지 않은 경우 (스칼라 서브쿼리 활용)
 
-예를 들어, 리뷰가 등록된 상품들의 평균 평점을 먼저 구한 뒤 이를 다시 조회한다고 가정해 보겠습니다.
-WITH 절을 사용하지 않으면 다음과 같이 서브쿼리를 반복 작성하게 됩니다.
+예를 들어, 리뷰가 등록된 상품들의 평균 평점을 구한다고 가정해 보겠습니다.
+`WITH` 절을 사용하지 않으면 `SELECT` 절에 **스칼라 서브쿼리**(Scalar Subquery)를 사용하여 상품별 평균 평점을 계산하고, `WHERE` 절에는 리뷰 존재 여부를 거르는 서브쿼리를 따로 중복 작성하게 됩니다.
 
 ### 12-1.1 실습 쿼리
 
 ```sql
--- 리뷰가 등록된 상품의 평균 평점 조회 (중복된 서브쿼리)
+-- SELECT 절 스칼라 서브쿼리와 WHERE 절 서브쿼리가 중복 사용된 예제
 SELECT p.product_id, p.name,
+    -- [스칼라 서브쿼리] 메인 쿼리 각 행마다 상품별 평균 평점을 단일 값으로 반환
     (SELECT AVG(r.rating)
      FROM reviews r
      WHERE r.product_id = p.product_id) AS avg_rating
@@ -696,14 +794,18 @@ WHERE p.product_id IN (SELECT product_id FROM reviews);
 
 *(※ 리뷰가 등록된 총 17개 상품의 이름과 각 상품별 평균 평점이 정상 조회되지만, 서브쿼리가 중복 사용되었습니다.)*
 
-> 🎯 **핵심 배움 포인트** (서브쿼리 반복 작성의 문제점):
+> 🎯 **핵심 배움 포인트** (스칼라 서브쿼리의 특징과 서브쿼리 중복 문제):
 > 
-> 1. **쿼리 중복과 가독성 저하**:
+> 1. `SELECT` **절 스칼라 서브쿼리**(Scalar Subquery) **원리**:
+>    - `SELECT` 절에 포함되어 **단 하나의 행, 단 하나의 열**(단일 값)을 반환하는 서브쿼리를 스칼라 서브쿼리라고 합니다.
+>    - 메인 쿼리의 각 행(`p.product_id`)마다 서브쿼리가 1회씩 실행되어 마치 일반 컬럼(`avg_rating`)처럼 결과 집합에 투영됩니다.
+> 
+> 2. **쿼리 중복과 가독성 저하**:
 >    - `SELECT` 절에서는 상품별 평균 평점을 계산하기 위해 스칼라 서브쿼리로 `reviews` 테이블을 조회하고,
 >    - `WHERE` 절에서는 리뷰가 존재하는 상품만 거르기 위해 `IN (SELECT product_id FROM reviews)` 서브쿼리를 또다시 작성했습니다.
 >    - 동일한 대상 테이블(`reviews`)에 접근하는 유사 서브쿼리가 여러 군데 분산되어 쿼리의 구조가 복잡해지고 유지보수가 어려워집니다.
 > 
-> 2. **해결 방향** (WITH 절 적용 예고):
+> 3. **해결 방향** (WITH 절을 통한 리팩터링):
 >    - 다음 실습 예제 12-2에서 살펴볼 `WITH` **절**(CTE)을 사용하면, `reviews` 테이블의 집계 로직을 상단에 단 한 번만 정의하여 쿼리를 훨씬 직관적이고 효율적으로 개선할 수 있습니다.
 
 ---
