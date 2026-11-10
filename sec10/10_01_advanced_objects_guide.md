@@ -42,24 +42,13 @@ SELECT USER FROM DUAL;
 
 ```mermaid
 flowchart TD
-    subgraph Client ["사용자 / 애플리케이션"]
-        UserQuery["SELECT * FROM v_recent_orders;"]
-    end
+    Client["사용자 / 애플리케이션<br/>SELECT * FROM v_recent_orders;"]
+    Dict["Oracle 데이터 딕셔너리 (USER_VIEWS)<br/>뷰 정의(SQL 문장) 보관 및 View Merging (쿼리 결합)"]
+    Tables["물리적 기본 테이블 (KOREA_MALL 디스크 블록)<br/>customers · orders · order_items · products"]
 
-    subgraph DataDictionary ["Oracle Data Dictionary (메타데이터)"]
-        ViewDef["뷰 정의 (SQL SELECT 문장 보관)"]
-    end
-
-    subgraph BaseTables ["물리적 기본 테이블 (KOREA_MALL)"]
-        T1["customers (고객)"]
-        T2["orders (주문)"]
-        T3["order_items (주문상세)"]
-        T4["products (상품)"]
-    end
-
-    UserQuery -->|"1. 뷰 조회 요청"| ViewDef
-    ViewDef -->|"2. 뷰 정의 쿼리와 사용자 쿼리를 결합(View Merging)"| BaseTables
-    BaseTables -->|"3. 결합된 최적 실행 계획으로 실제 데이터 검색 및 반환"| Client
+    Client -->|"1. 뷰 조회 요청"| Dict
+    Dict -->|"2. 뷰 정의 쿼리와 결합 및 실행 계획 수립"| Tables
+    Tables -->|"3. 최적 실행 계획으로 실제 데이터 검색 및 반환"| Client
 ```
 
 ### 1.2 뷰를 사용하는 실무적 목적
