@@ -212,83 +212,73 @@ WHERE product_id = 3;
 
 이번 실습에서는 주문 상세 입력 과정에서 오류가 발생하여 전체 트랜잭션이 취소되는 상황을 확인합니다.
 
-### ① 시퀀스 초기화
+### ① 현재 테이블 최대 번호 확인 및 시퀀스 점검
 
-세션이 새로 열렸거나 데이터베이스에 다시 접속한 경우, 해당 세션에서는 아직 시퀀스의 현재 값이 정의되지 않았을 수 있습니다.
-
-```sql
--- 세션이 새로 열렸거나 재접속한 경우
--- 시퀀스에서 NEXTVAL을 한 번도 호출하지 않았다면
--- CURRVAL은 "정의되지 않음" 상태가 되어 ORA-08002 오류가 발생합니다.
--- 이를 방지하기 위해 NEXTVAL을 먼저 호출합니다.
-
-SELECT seq_orders.NEXTVAL AS new_order_id FROM dual;
-SELECT seq_order_items.NEXTVAL AS new_order_item_id FROM dual;
-```
-
-### ② 현재 시퀀스 값 확인
+실습 예제 1이 정상적으로 완료되었다면 `orders` 테이블에는 21번, `order_items` 테이블에는 40번까지 데이터가 저장되어 있습니다.  
+새로운 주문을 시작하기 전, 현재 테이블의 최대 번호를 확인하여 다음 발급될 번호를 점검합니다.
 
 ```sql
--- [실습 예제 2-1] 아래 2개의 쿼리문을 실행하고, 각 시퀀스의 현재 값을 메모합니다.
-SELECT seq_orders.CURRVAL AS new_order_id FROM dual;         -- 예: 22 (또는 환경에 따라 23)
-SELECT seq_order_items.CURRVAL AS new_order_item_id FROM dual; -- 예: 43 (또는 환경에 따라 44)
+-- [실습 예제 2-1] 현재 테이블의 최대 번호 확인 (다음 주문 번호 확인)
+SELECT NVL(MAX(order_id), 0) + 1 AS next_order_id FROM orders;              -- 예상: 22
+SELECT NVL(MAX(order_item_id), 0) + 1 AS next_order_item_id FROM order_items; -- 예상: 41
+
+-- ※ 만약 실습 예제 1을 건너뛰었거나 시퀀스 번호가 어긋난 경우, 아래 명령으로 동기화합니다:
+-- ALTER SEQUENCE seq_orders RESTART START WITH 22;
+-- ALTER SEQUENCE seq_order_items RESTART START WITH 41;
 ```
 
-### ③ 새 주문 시작
+### ② 새 주문 시작 (주문 번호 자동 채번)
 
-이제 `orders` 테이블에 주문 정보를 입력합니다.  
-DML 문이 실행되는 순간 트랜잭션이 시작됩니다.  
+이제 `orders` 테이블에 새로운 주문 정보를 입력합니다.  
+`seq_orders.NEXTVAL`을 호출하여 신규 주문 번호(22번)를 자동으로 발급받으며, DML 문이 실행되는 순간 트랜잭션이 자동 시작됩니다.  
 *(customer_id = 4인 고객이 주문을 완료했다고 가정합니다)*
 
 ```sql
--- [실습 예제 2-2] 새 주문 시작 (DML 실행 시 트랜잭션 자동 시작)
+-- [실습 예제 2-2] 새 주문 시작 (NEXTVAL로 신규 22번 주문번호 발급 및 트랜잭션 시작)
 INSERT INTO orders (order_id, customer_id, order_date, status)
-VALUES (seq_orders.NEXTVAL, 4, SYSDATE, '결제완료');   -- 정상적인 쿼리문
+VALUES (seq_orders.NEXTVAL, 4, SYSDATE, '결제완료');
 ```
 
-### ④ 정상 주문 상세 입력
+### ③ 정상 주문 상세 입력
 
-첫 번째 주문 상품은 정상적으로 입력합니다.
+첫 번째 주문 상품은 정상적으로 입력합니다.  
+주문 상세 번호는 `seq_order_items.NEXTVAL`(41번)을 새로 채번하고, 주문 번호는 앞서 생성한 주문과 연결하기 위해 `seq_orders.CURRVAL`(22번)을 참조합니다.
 
 ```sql
--- [실습 예제 2-3] 2-2의 주문에 여러 상품이 있다고 가정, 정상적인 쿼리문
+-- [실습 예제 2-3] 첫 번째 주문 상품 상세 등록 (정상 입력)
 INSERT INTO order_items (order_item_id, order_id, product_id, quantity, price_each)
 VALUES (seq_order_items.NEXTVAL, seq_orders.CURRVAL, 3, 1, 12900);
 ```
 
-### ⑤ 오류 발생 주문 상세 입력 및 전체 트랜잭션 취소
+### ④ 오류 발생 주문 상세 입력 및 전체 트랜잭션 취소
 
-이번에는 존재하지 않는 상품 ID를 사용하여 주문 상세를 입력해 보겠습니다.  
-오류가 발생하면 지금까지 수행한 주문 정보 입력, 주문 상세 입력, 재고 차감 작업을 모두 취소해야 합니다.
+이번에는 존재하지 않는 상품 ID(`product_id = 999`)를 사용하여 두 번째 주문 상세 입력을 시도합니다.  
+외래키 제약조건 위반 오류가 발생하면 지금까지 수행한 주문 기본 정보 입력과 첫 번째 상세 입력을 모두 취소(`ROLLBACK`)합니다.
 
 ```sql
--- [실습 예제 2-4] 2-2의 주문에 여러 상품이 있다고 가정, 비정상적인 쿼리문
+-- [실습 예제 2-4] 두 번째 상품 상세 등록 시도 (FK 제약조건 오류 유발)
 INSERT INTO order_items (order_item_id, order_id, product_id, quantity, price_each)
 VALUES (seq_order_items.NEXTVAL, seq_orders.CURRVAL, 999, 1, 14000);
--- FK 오류 발생 예상 (존재하지 않는 상품ID=999)
--- rollback 되어야 하는 상황을 유발시키기 위해 고의적으로 존재하지 않는 상품을 insert.
+-- ORA-02291: integrity constraint (KOREA_MALL.FK_ORDER_ITEMS_PRODUCT) violated - parent key not found
 
--- ※ 주의
--- 오류가 발생하면 이후 SQL 문은 자동으로 실행되지 않습니다.
--- 실습에서는 트랜잭션 전체 취소 의도를 명확히 하기 위해 수동으로 ROLLBACK을 수행합니다.
-ROLLBACK;   -- 주문, 상세, (혹시 차감했을) 재고까지 모두 취소
+-- ※ 오류가 발생했으므로 트랜잭션 전체 취소(ROLLBACK) 수행
+ROLLBACK;   -- 주문 마스터(22번) 및 정상 입력되었던 상세(41번) 모두 취소
 ```
 
-### ⑥ 결과 확인
+### ⑤ 롤백 결과 확인
 
-마지막으로 앞에서 입력했던 주문 정보와 주문 상세 정보가 실제로 취소되었는지 확인합니다.
+마지막으로 앞에서 입력을 시도했던 22번 주문과 41번 상세 정보가 실제로 롤백(취소)되어 데이터베이스에 전혀 남아있지 않은지 확인합니다.
 
 ```sql
--- [실습 예제 2-5] 앞에서 insert 했던 데이터가 rollback 되었는지 확인
--- 2-1 또는 2-2에서 메모/사용했던 값의 PK가 존재하는지 확인 (0건 조회되어야 정상)
-SELECT * FROM orders WHERE order_id = 23;
-SELECT * FROM order_items WHERE order_item_id = 44;
+-- [실습 예제 2-5] 롤백된 데이터 검증 (모두 0건이 조회되어야 정상)
+SELECT * FROM orders WHERE order_id = 22;
+SELECT * FROM order_items WHERE order_item_id = 41;
 ```
 
 > 🎯 **핵심 배움 포인트** (외래키 무결성 오류와 시퀀스 롤백):
 > - 부모 테이블(`products`)에 존재하지 않는 `product_id = 999`를 참조하려 할 때 외래키 제약조건(`FK_ORDER_ITEMS_PRODUCT`) 위반(`ORA-02291`)이 발생합니다.
-> - `ROLLBACK`을 실행하면 이전에 정상 삽입되었던 `orders` 마스터 레코드와 첫 번째 `order_items` 행이 모두 원자적으로 취소되어 데이터 무결성이 지켜집니다.
-> - **단, 시퀀스**(`NEXTVAL`)**로 이미 발급된 번호는 롤백되지 않습니다.** 트랜잭션 취소 여부와 무관하게 시퀀스는 증가 상태를 유지하므로 번호 결번(Gap)이 발생하는 것은 오라클의 정상 동작입니다.
+> - `ROLLBACK`을 실행하면 이전에 정상 삽입되었던 `orders` 마스터 레코드(22번)와 첫 번째 `order_items` 행(41번)이 모두 원자적으로 취소되어 데이터 무결성이 지켜집니다.
+> - **단, 시퀀스로 이미 발급된 번호는 롤백되지 않습니다.** 트랜잭션 취소 여부와 무관하게 시퀀스는 증가 상태를 유지하므로 번호 결번(Gap)이 발생하는 것은 오라클의 정상 동작입니다.
 
 ---
 
