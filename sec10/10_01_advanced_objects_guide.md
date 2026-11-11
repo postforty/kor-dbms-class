@@ -286,6 +286,11 @@ SELECT * FROM v_active_customers;
 INSERT INTO v_active_customers (customer_id, name, email, phone, is_active)
 VALUES (101, '홍길동', 'hong@mm.com', '010-9999-9999', 'Y');
 
+-- 기저 테이블(customers)에 실제 데이터가 저장되었는지 확인
+SELECT customer_id, name, email, is_active
+FROM   customers
+WHERE  customer_id = 101;
+
 -- 뷰를 통한 삽입 (오류 : is_active = 'N')
 INSERT INTO v_active_customers (customer_id, name, email, phone, is_active)
 VALUES (102, '김철수', 'kim@mm.com', '010-8888-8888', 'N');
@@ -294,11 +299,11 @@ VALUES (102, '김철수', 'kim@mm.com', '010-8888-8888', 'N');
 
 ### 3.2.2 쿼리 실행 결과 및 오류 분석
 
-* **101번 고객('홍길동', `is_active = 'Y'`) 삽입 결과**:
+* **101번 고객('홍길동', `is_active = 'Y'`) 삽입 및 기저 테이블 반영 확인**:
   ```text
   1 행 이(가) 삽입되었습니다.
   ```
-  `is_active = 'Y'` 조건을 충족하므로 뷰를 통해 기저 테이블인 `customers`에 정상적으로 데이터가 삽입됩니다.
+  `is_active = 'Y'` 조건을 충족하므로 뷰를 통해 물리적 저장 공간인 기저 테이블 `customers`에 데이터가 정상적으로 영구 삽입됩니다.
 
 * **102번 고객('김철수', `is_active = 'N'`) 삽입 결과 (오류)**:
   ```text
@@ -330,11 +335,22 @@ ROLLBACK;
 >     CondCheck -->|"예 (조건 유지)"| Success["기저 테이블(customers)에<br/>정상 삽입 / 반영 (SUCCESS)"]
 > ```
 > 
-> 1. **뷰 조건의 일관성 유지 (데이터 이탈 방지)**:
+> 1. **뷰 조건의 일관성 유지**(데이터 이탈 방지):
 >    - `WITH CHECK OPTION`이 없으면 뷰를 통해 `is_active = 'N'`인 데이터를 넣을 수 있지만, 그렇게 삽입된 행은 정작 `v_active_customers` 뷰에서는 조회되지 않는 모순이 발생합니다.
->    - `WITH CHECK OPTION`은 **뷰를 통해 입력·수정되는 모든 데이터가 반드시 해당 뷰의 `WHERE` 절 조건을 만족해야만 한다**는 엄격한 무결성 규칙을 강제하여 데이터 이탈을 방지합니다.
+>    - `WITH CHECK OPTION`은 **뷰를 통해 입력·수정되는 모든 데이터가 반드시 해당 뷰의 WHERE 절 조건을 만족해야만 한다**는 엄격한 무결성 규칙을 강제하여 데이터 이탈을 방지합니다.
 > 2. **조건 컬럼을 건드리지 않는 수정은 허용**:
 >    - `UPDATE v_active_customers SET phone = '010-1234-5678' WHERE customer_id = 1;`처럼 `WHERE` 절 조건(`is_active`)에 영향을 주지 않는 일반 정보 수정은 정상 허용됩니다.
+> 3. **뷰의 데이터 조작과 기저 테이블 반영 원리**:
+>    - **물리적 저장 위치**: 뷰는 자체 디스크 저장 공간이 없는 가상 테이블이므로, 뷰를 대상으로 수행한 `INSERT`, `UPDATE`, `DELETE` 명령은 오라클 엔진에 의해 실제 데이터를 보관하는 **기저 테이블**(Base Table, 본 예제의 `customers`)에 직접 변환되어 반영됩니다.
+>    - **뷰 DML 가능 조건 및 주요 제약사항**: 모든 뷰에서 데이터 추가나 수정이 가능한 것은 아니며, 원본 행과 1:1로 대응되는 **단순 뷰**(Simple View)에서만 제한적으로 허용됩니다.
+> 
+> | 구분 | DML 불가능한 경우 | 주요 원인 및 제약 이유 |
+> | :--- | :--- | :--- |
+> | **NOT NULL 제약** | 기저 테이블의 필수 컬럼 누락 | 뷰에 포함되지 않은 원본 컬럼 중 기본값(`DEFAULT`) 없는 `NOT NULL` 컬럼이 있으면 `INSERT` 불가 (`ORA-01400`) |
+> | **가공 및 집계** | 집계 함수, 수식, 그룹화 사용 | `SUM`, `AVG`, `GROUP BY`, `DISTINCT` 등이 포함된 뷰는 원본 행과 1:1 매핑되지 않아 DML 불가 |
+> | **다중 테이블** | 복합 뷰(다중 테이블 조인) | 여러 테이블을 조인한 복합 뷰는 키-보존 테이블 규칙을 만족하지 못하면 데이터 조작 불가 |
+> | **보안 옵션** | `WITH READ ONLY` 지정 | 뷰 생성 시 읽기 전용 옵션을 설정한 경우 모든 DML 원천 차단 (`ORA-42399`) |
+> | **조건 무결성** | `WITH CHECK OPTION` 위배 | 뷰의 `WHERE` 조건에 부합하지 않는 데이터 입력 및 수정 차단 (`ORA-01402`) |
 
 ---
 
@@ -566,9 +582,19 @@ WHERE  sequence_name = 'SEQ_CUSTOMERS';
 
 `customers` 테이블의 기본키인 `customer_id` 컬럼에 숫자를 수동으로 입력하지 않고, 미리 정의된 시퀀스 객체(`seq_customers`)의 `NEXTVAL`을 호출하여 유일한 고객 번호를 자동으로 발급받아 신규 데이터를 추가합니다.
 
+> [!NOTE] **시퀀스 시작 번호와 기존 데이터 충돌 사전 확인**  
+> `customers` 테이블에는 이미 초기 샘플 데이터로 1~10번 고객이 등록되어 있습니다. 따라서 신규 고객은 **11번**부터 부여받아야 합니다.  
+> 만약 `seq_customers` 시퀀스가 생성 후 처음 사용되는 상태라면, 아래 사전 조치 쿼리를 먼저 실행하여 시작 번호를 11번으로 맞춰줍니다.
+
 ### 5.3.1 실습 쿼리
 
 ```sql
+-- [사전 조치] 시퀀스 발급 번호를 기존 고객(10명) 이후인 11번으로 맞추기 (최초 1회)
+ALTER SEQUENCE seq_customers RESTART START WITH 11;
+-- ※ 구버전 호환 또는 DROP & CREATE 방식:
+-- DROP SEQUENCE seq_customers;
+-- CREATE SEQUENCE seq_customers START WITH 11 INCREMENT BY 1 NOCACHE;
+
 -- 시퀀스를 이용하여 신규 고객 추가
 INSERT INTO customers (customer_id, name, email, phone, registered_date, is_active)
 VALUES (seq_customers.NEXTVAL, '아이유', 'iu@mm.com', '010-7777-1334', SYSDATE, 'Y');
@@ -588,7 +614,22 @@ ROLLBACK;
 | :---: | :---: | :--- | :--- | :---: | :---: |
 | 11 | 아이유 | iu@mm.com | 010-7777-1334 | 2026-11-07 | Y |
 
-*(※ 기존 1~10번 고객에 이어 시퀀스로부터 발급된 번호가 `customer_id`로 자동 부여되어 1행이 성공적으로 삽입됩니다.)*
+*(※ 기존 1~10번 고객에 이어 시퀀스로부터 발급된 11번이 `customer_id`로 자동 부여되어 1행이 성공적으로 삽입됩니다.)*
+
+> [!WARNING] **실행 시 ORA-00001 기본키 제약조건 위반 오류가 발생하는 경우**  
+> ```text
+> SQL Error [1] [23000]: ORA-00001: 고유한 제약 조건(KOREA_MALL.SYS_C008686)이 테이블 KOREA_MALL.CUSTOMERS 열(CUSTOMER_ID)에서 위반되었습니다.
+> ORA-03301: 열 값(CUSTOMER_ID:1)이 있는 행이 존재합니다.
+> ```
+> * **원인**: `customers` 테이블에 이미 `customer_id = 1`인 고객이 존재하는 상태에서, 시퀀스 객체가 초기값인 1부터 번호를 발급하여 충돌한 것입니다.
+> * **해결 방법 (택 1)**:
+>   1. **시퀀스 재시작 (Oracle 12.2 이상)**:  
+>      `ALTER SEQUENCE seq_customers RESTART START WITH 11;`  
+>   2. **시퀀스 재생성 (모든 버전 공통 / 가장 확실)**:  
+>      `DROP SEQUENCE seq_customers;` 실행 후 `CREATE SEQUENCE seq_customers START WITH 11 INCREMENT BY 1 NOCACHE;`  
+>   3. **대기 번호 소진**:  
+>      방금 오류로 1번이 발급되었으므로, 가상 테이블에서 2~10번을 소진시킵니다:  
+>      `SELECT seq_customers.NEXTVAL FROM dual CONNECT BY LEVEL <= 9;`
 
 > 🎯 **핵심 배움 포인트** (`NEXTVAL`의 자동 채번과 동시성 제어):
 > 
